@@ -5,9 +5,9 @@ name: tendTo_bot_deploy
 
 on:
   push:
-    branches: [meme_bot]
+    branches: [master]
   pull_request:
-    branches: [meme_bot]
+    branches: [master]
 
 jobs:
   build:
