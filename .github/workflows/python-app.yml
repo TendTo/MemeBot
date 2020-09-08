@@ -1,0 +1,70 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: tendTo_bot_deploy
+
+on:
+  push:
+    branches: [meme_bot]
+  pull_request:
+    branches: [meme_bot]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8.5
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Setup enviroment
+        run: |
+          mv data/db/sqlite.db.dist data/db/sqlite.db
+          mv config/settings.yaml.dist config/settings.yaml
+          python3 settings.py -t ${{secrets.TOKEN}} -d ${{secrets.DATABASE_URL}} -w false -m false
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      - name: Test with pytest
+        run: |
+          pytest
+      - name: Revert enviroment
+        run: |
+          python3 settings.py -r
+          mv data/db/sqlite.db data/db/sqlite.db.dist
+          mv config/settings.yaml config/settings.yaml.dist
+      - name: Deploy to Heroku
+        uses: AkhileshNS/heroku-deploy@v3.4.6
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: ${{secrets.APP_NAME}}
+          heroku_email: ${{secrets.EMAIL}}
+          usedocker: true
+          docker_build_args: |
+            TOKEN
+            DATA_REMOTE
+            DATABASE_URL
+            WEBHOOK_ENABLED
+            WEB_URL
+            MEME_ENABLED
+            GROUP_ID
+            CHANNEL_ID
+        env:
+          TOKEN: ${{secrets.TOKEN}}
+          DATA_REMOTE: 1
+          DATABASE_URL: ${{secrets.DATABASE_URL}}
+          WEBHOOK_ENABLED: 1
+          WEB_URL: ${{secrets.WEB_URL}}
+          MEME_ENABLED: 1
+          GROUP_ID: ${{secrets.GROUP_ID}}
+          CHANNEL_ID: ${{secrets.CHANNEL_ID}}

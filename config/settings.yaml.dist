@@ -1,0 +1,16 @@
+data:
+  db_url: ''
+  remote: false
+debug:
+  db_log: false
+  local_log: false
+meme:
+  channel_id: ''
+  enabled: true
+  group_id: ''
+  n_votes: 1
+  reset_on_load: false
+token: ''
+webhook:
+  enabled: true
+  url: ''
