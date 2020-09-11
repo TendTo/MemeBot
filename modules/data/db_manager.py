@@ -26,19 +26,17 @@ def dict_factory(cursor: sqlite3.Cursor, row: sqlite3.Row) -> dict:
 class DbManager():
     """Class that handles the management of databases
     """
-    def __init__(self):
-        """Contructor
-        """
-        self.use_remote_db = config_map['data']['remote']
+    use_remote_db = config_map['data']['remote']
 
-    def get_db(self) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
+    @staticmethod
+    def get_db() -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
         """Create the connection to the database. It can be sqlite or postgres
 
         Returns:
             Tuple[sqlite3.Connection, sqlite3.Cursor]: sqlite database connection and cursor
             Tuple[psycopg2.Connection, psycopg2.Cursor]psycopg2.connection: postgres database connection and cursor
         """
-        if self.use_remote_db:  # connect to the remote db
+        if DbManager.use_remote_db:  # connect to the remote db
             db_path = os.environ.get("DATABASE_URL", config_map['data']['db_url'])
             conn = psycopg2.connect(db_path, sslmode='require')
             cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -49,13 +47,14 @@ class DbManager():
             cur = conn.cursor()
         return conn, cur
 
-    def query_from_file(self, *file_path: str):
+    @staticmethod
+    def query_from_file(*file_path: str):
         """Commit all the queries in the specified file. The queries must be separated by a ----- string
 
         Args:
             file_path (str): path of the text file containing the queries
         """
-        conn, cur = self.get_db()
+        conn, cur = DbManager.get_db()
         queries = read_file(*file_path).split("-----")
         for query in queries:
             cur.execute(query)
@@ -63,7 +62,8 @@ class DbManager():
         cur.close()
         conn.close()
 
-    def query_from_string(self, *queries: str) -> list:
+    @staticmethod
+    def query_from_string(*queries: str) -> list:
         """Commit all the queries in the string
 
         Args:
@@ -72,7 +72,7 @@ class DbManager():
         Returns:
             list: result of the query, if any
         """
-        conn, cur = self.get_db()
+        conn, cur = DbManager.get_db()
         for query in queries:
             cur.execute(query)
         try:
@@ -84,7 +84,8 @@ class DbManager():
         conn.close()
         return output
 
-    def select_from(self, table_name: str, select: str = "*") -> list:
+    @staticmethod
+    def select_from(table_name: str, select: str = "*") -> list:
         """Returns the result of a SELECT select FROM table_name
 
         Args:
@@ -94,7 +95,7 @@ class DbManager():
         Returns:
             list: result of the select
         """
-        conn, cur = self.get_db()
+        conn, cur = DbManager.get_db()
         try:
             cur.execute(f"SELECT {select} FROM {table_name}")
         except sqlite3.Error as e:
@@ -104,7 +105,8 @@ class DbManager():
         conn.close()
         return query_result
 
-    def select_from_where(self, table_name: str, where: str, select: str = "*") -> list:
+    @staticmethod
+    def select_from_where(table_name: str, where: str, select: str = "*") -> list:
         """Returns the result of a SELECT select FROM table_name WHERE where
 
         Args:
@@ -115,7 +117,7 @@ class DbManager():
         Returns:
             list: result of the select
         """
-        conn, cur = self.get_db()
+        conn, cur = DbManager.get_db()
         try:
             cur.execute(f"SELECT {select} FROM {table_name} WHERE {where}")
         except sqlite3.Error as e:
@@ -125,7 +127,8 @@ class DbManager():
         conn.close()
         return query_result
 
-    def count_from_where(self, table_name: str, where: str) -> int:
+    @staticmethod
+    def count_from_where(table_name: str, where: str) -> int:
         """Returns the number of rows from SELECT COUNT(*) FROM table_name WHERE where
 
         Args:
@@ -135,7 +138,7 @@ class DbManager():
         Returns:
             int: number of rows
         """
-        conn, cur = self.get_db()
+        conn, cur = DbManager.get_db()
         try:
             cur.execute(f"SELECT COUNT(*) as number FROM {table_name} WHERE {where}")
         except sqlite3.Error as e:

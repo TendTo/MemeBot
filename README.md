@@ -59,7 +59,7 @@ Listed in requirements.txt
 
 #### Steps:
 - Clone this repository
-- In "config/settings.yaml.dist", edit the desired values. Be mindful that the one listed below will overwrite the ones in "config/settings.yaml.dist", even if you don't specify them
+- In "config/settings.yaml.dist", edit the desired values. Be mindful that the one listed below will overwrite the ones in "config/settings.yaml.dist", even if they aren't used in the command line
 - **Run** `docker build --tag botimage --build-arg TOKEN=<token_arg> [...] .` 
 
 | In the command line <br>(after each --build-arg) | Type | Function | Optional |
@@ -67,7 +67,7 @@ Listed in requirements.txt
 | **TOKEN=<token_args>** | string | the token for your telegram bot | REQUIRED |
 | **WEBHOOK_ENABLED=<webhook_enabled>** | bool | whether or not the bot should use webhook<br>(false recommended for local) | OPTIONAL - defaults to false |
 | **WEB_URL=<web_url>** | string | the url used by the webhook | REQUIRED IF webhook_enabled = true |
-| **DATA_REMOTE=<data_REMOTE>** | bool | whether the data will be saved remotely (postgres) or locally (mysql)<br>(false recommended for local) | OPTIONAL - defaults to false |
+| **DATA_REMOTE=<data_remote>** | bool | whether the data will be saved remotely (postgres) or locally (mysql)<br>(false recommended for local) | OPTIONAL - defaults to false |
 | **DATABASE_URL=<db_url>** | string | url of your postgres database | REQUIRED IF data_remote = true |
 | **MEME_ENABLED=<meme_enabled>** | bool | whether the memebot is enabled | OPTIONAL - defaults to true |
 | **GROUP_ID=<group_id>** | int | id of the admin group the memebot will use | REQUIRED IF meme_enabled = true |
