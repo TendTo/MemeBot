@@ -15,7 +15,7 @@ Puoi scegliere se pubblicare i post anonimamente o meno attraverso il comando /s
 Di default, il post viene pubblicato anonimantente: in questo modo, non ci sarà alcun riferimento all'autore
 
 Il codice sorgente del bot è disponibile qui: [GitHub](https://github.com/TendTo/MemeBot)
-Il progetto è stato ispirato dal [Telegram-SpottedDMI-Bot](https://github.com/UNICT-DMI/Telegram-SpottedDMI-Bot)
+Il progetto è stato ispirato dal [Telegram\-SpottedDMI\-Bot](https://github.com/UNICT-DMI/Telegram-SpottedDMI-Bot)
 Questo garantisce che chiunque ha la possibilità di controllare come funziona il sistema o anche di creare un nuovo bot basato su questo
 
 Puoi cambiare queta preferenza in qualsiasi momento con il comando /settings, a patto di avere un username associato al tuo account telegram
