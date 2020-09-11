@@ -1,0 +1,219 @@
+from typing import Optional
+from telegram import Message
+from modules.data.db_manager import DbManager
+
+# region db management
+
+
+def db_insert_pending_post(user_message: Message, admin_message: Message):
+    """Insert a new post in the table of pending posts
+
+    Args:
+        user_message (Message): message sent by the user that contains the post
+        admin_message (Message): message recieved in the admin group that references the post
+    """
+    db = DbManager()
+
+    user_id = user_message.from_user.id
+    u_message_id = user_message.message_id
+    g_message_id = admin_message.message_id
+    group_id = admin_message.chat_id
+
+    db.query_from_string("INSERT INTO pending_meme (user_id, u_message_id, g_message_id, group_id)" +
+                         f"VALUES ('{user_id}', '{u_message_id}', '{g_message_id}', '{group_id}')")
+
+
+def db_set_admin_vote(admin_id: int, g_message_id: int, group_id: int, approval: bool) -> int:
+    """Adds the vote of the admin on a specific post, or update the existing vote, if needed
+
+    Args:
+        admin_id (int): id of the admin that voted
+        g_message_id (int): id of the post in question in the group
+        group_id (int): id of the admin group
+        approval (bool): whether the vote is approval or reject
+
+    Returns:
+        int: number of similar votes (all the approve or the reject), or -1 if the vote wasn't updated
+    """
+    db = DbManager()
+    vote = db_get_admin_vote(admin_id, g_message_id, group_id)
+    if vote is None:  # there isn't a vote yet
+        db.query_from_string(f"INSERT INTO admin_votes (admin_id, g_message_id, group_id, is_upvote)\
+                                VALUES ('{admin_id}',\
+                                        '{g_message_id}',\
+                                        '{group_id}',\
+                                         {approval})")
+        number_of_votes = db_get_pending_votes(g_message_id, group_id, approval)
+    elif bool(vote) != approval:  # the vote was different from the approval
+        db.query_from_string(f"UPDATE admin_votes SET is_upvote = {approval}\
+                                WHERE admin_id = '{admin_id}'\
+                                    and g_message_id = '{g_message_id}'\
+                                    and group_id = '{group_id}'")
+        number_of_votes = db_get_pending_votes(g_message_id, group_id, approval)
+    else:
+        return -1
+    return number_of_votes
+
+
+def db_get_admin_vote(admin_id: int, g_message_id: int, group_id: int) -> Optional[bool]:
+    """Gets the vote of a specific admin on a pending post
+
+    Args:
+        admin_id (int): id of the admin that voted
+        g_message_id (int): id of the post in question in the group
+        group_id (int): id of the admin group
+
+    Returns:
+        Optional[bool]: a bool representing the vote or None if a vote was not yet made
+    """
+    db = DbManager()
+    vote = db.query_from_string(f"SELECT is_upvote FROM admin_votes\
+                                    WHERE admin_id = '{admin_id}'\
+                                    and g_message_id = '{g_message_id}'\
+                                    and group_id = '{group_id}'")
+
+    if len(vote) == 0:  # the vote is not present
+        return None
+    else:
+        return vote[0]['is_upvote']
+
+
+def db_get_pending_votes(g_message_id: int, group_id: int, vote: bool) -> int:
+    """Gets all the votes of a specific kind (approve or reject) on a pending post
+
+    Args:
+        g_message_id (int): id of the post in question in the group
+        group_id (int): id of the admin group
+        vote (bool): whether you look for the approve or reject votes
+
+    Returns:
+        int: number of votes
+    """
+    db = DbManager()
+    return db.count_from_where(
+        "admin_votes", f"g_message_id='{g_message_id}'\
+                        and group_id = '{group_id}'\
+                        and is_upvote = {vote}")
+
+
+def db_clean_pending_meme(g_message_id: int, group_id: int):
+    """Removes all remaining entries on a post that is no longer pending
+
+    Args:
+        g_message_id (int): id of the no longer pending post in the group
+        group_id (int): id of the admin group
+    """
+    db = DbManager()
+    db.query_from_string(f"DELETE FROM pending_meme\
+                         WHERE g_message_id = '{g_message_id}'\
+                            and group_id = '{group_id}'")
+    db.query_from_string(f"DELETE FROM admin_votes\
+                         WHERE g_message_id = '{g_message_id}'\
+                            and group_id = '{group_id}'")
+
+
+def db_insert_published_post(channel_message: Message):
+    """Insert a new post in the table of pending posts
+
+    Args:
+        channel_message (Message): message approved to be published
+    """
+    db = DbManager()
+    c_message_id = channel_message.message_id
+    channel_id = channel_message.chat_id
+    db.query_from_string("INSERT INTO published_meme (channel_id, c_message_id)" +
+                         f"VALUES ('{channel_id}', '{c_message_id}')")
+
+
+def db_set_user_vote(user_id: int, c_message_id: int, channel_id: int, approval: bool) -> int:
+    """Adds the vote of the user on a specific post, or update the existing vote, if needed
+
+    Args:
+        user_id (int): id of the user that voted
+        c_message_id (int): id of the post in question in the channel
+        channel_id (int): id of the channel
+        approval (bool): whether it is an upvote or a downvote
+
+    Returns:
+        int: number of similar votes (all the upvotes or the downvotes), or -1 if the vote wasn't updated
+    """
+    db = DbManager()
+    vote = db_get_user_vote(user_id, c_message_id, channel_id)
+    if vote is None:  # there isn't a vote yet
+        db.query_from_string(f"INSERT INTO votes (user_id, c_message_id, channel_id, is_upvote)\
+                                VALUES ('{user_id}',\
+                                        '{c_message_id}',\
+                                        '{channel_id}',\
+                                         {approval})")
+        number_of_votes = db_get_published_votes(c_message_id, channel_id, approval)
+    elif bool(vote) != approval:  # the vote was different from the approval
+        db.query_from_string(f"UPDATE votes SET is_upvote = {approval}\
+                                WHERE user_id = '{user_id}'\
+                                    and c_message_id = '{c_message_id}'\
+                                    and channel_id = '{channel_id}'")
+        number_of_votes = db_get_published_votes(c_message_id, channel_id, approval)
+    else:
+        return -1
+    return number_of_votes
+
+
+def db_get_user_vote(user_id: int, c_message_id: int, channel_id: int) -> Optional[bool]:
+    """Gets the vote of a specific user on a published post
+
+    Args:
+        user_id (int): id of the user that voted
+        c_message_id (int): id of the post in question in the channel
+        channel_id (int): id of the channel
+
+    Returns:
+        Optional[bool]: a bool representing the vote or None if a vote was not yet made
+    """
+    db = DbManager()
+    vote = db.query_from_string(f"SELECT is_upvote FROM votes\
+                                    WHERE user_id = '{user_id}'\
+                                    and c_message_id = '{c_message_id}'\
+                                    and channel_id = '{channel_id}'")
+
+    if len(vote) == 0:  # the vote is not present
+        return None
+    return vote[0]['is_upvote']
+
+
+def db_get_published_votes(c_message_id: int, channel_id: int, vote: bool) -> int:
+    """Gets all the votes of a specific kind (upvote or downvote) on a published post
+
+    Args:
+        c_message_id (int): id of the post in question in the channel
+        channel_id (int): id of the channel
+        vote (bool): whether you look for upvotes or downvotes
+
+    Returns:
+        int: number of votes
+    """
+    db = DbManager()
+    return db.count_from_where(table_name="votes",
+                               where=f"c_message_id='{c_message_id}'\
+                                        and channel_id = '{channel_id}'\
+                                        and is_upvote = {vote}")
+
+
+def db_get_user_id(g_message_id: int, group_id: int) -> Optional[int]:
+    """Get the user_id of the user that made the pending post
+
+    Args:
+        g_message_id (int): id of the post in question in the group
+        group_id (int): id of the admin group
+
+    Returns:
+        Optional[int]: user_id, if found
+    """
+    db = DbManager()
+    list_user_id = db.select_from_where(select="user_id",
+                                        table_name="pending_meme",
+                                        where=f"g_message_id = '{g_message_id}' and group_id = '{group_id}'")
+    if list_user_id:
+        return list_user_id[0]['user_id']
+    return None
+
+
+# endregion

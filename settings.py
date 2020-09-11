@@ -49,15 +49,15 @@ except FileNotFoundError as e:
 
 for opt, arg in opts:
     if opt in ("-t", "--token"):  # set the new_token value (defaults to "")
-        new_token = arg
+        new_token = arg if arg != "none" else ""
     elif opt in ("-d", "--database"):  # set url_database value (defaults to "")
-        url_database = arg
+        url_database = arg if arg != "none" else ""
     elif opt in ("-u", "--url"):  # set the group_id value to false...
-        web_url = arg
+        web_url = arg if arg != "none" else ""
     elif opt in ("-g", "--group"):  # set the group_id value to false...
-        group_id = arg
+        group_id = arg if arg != "none" else ""
     elif opt in ("-c", "--channel"):  # set the group_id value to false...
-        channel_id = arg
+        channel_id = arg if arg != "none" else ""
     elif opt in ("-l", "--remote"):  # set the is_remote value to false...
         if arg.lower() in ("false", "no", "disable", "falso", "f", "n", "0", "-1"):  # if the parameter is in this list
             is_remote = False
@@ -99,14 +99,11 @@ except ValueError as e:
 
 with open(settings_path, 'w') as yaml_file:
     config_map['token'] = new_token
-    if is_remote is not None:
-        config_map['data']['remote'] = is_remote
+    config_map['data']['remote'] = is_remote
     config_map['data']['db_url'] = url_database
-    if webhook_enabled is not None:
-        config_map['webhook']['enabled'] = webhook_enabled
+    config_map['webhook']['enabled'] = webhook_enabled
     config_map['webhook']['url'] = web_url
-    if meme_enabled is not None:
-        config_map['meme']['enabled'] = meme_enabled
+    config_map['meme']['enabled'] = meme_enabled
     config_map['meme']['group_id'] = group_id
     config_map['meme']['channel_id'] = channel_id
     yaml.dump(config_map, yaml_file)

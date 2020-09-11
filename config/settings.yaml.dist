@@ -12,5 +12,5 @@ meme:
   reset_on_load: false
 token: ''
 webhook:
-  enabled: true
+  enabled: false
   url: ''

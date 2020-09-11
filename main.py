@@ -11,7 +11,7 @@ from modules.debug.log_manager import log_message
 from modules.data.data_reader import config_map
 # commands
 import modules.commands.default as default
-from modules.commands.meme import STATE, start_cmd, help_cmd, settings_cmd, post_cmd, ban_cmd, post_msg,\
+from modules.commands.meme import STATE, start_cmd, help_cmd, settings_cmd, post_cmd, ban_cmd, reply_cmd, post_msg,\
     rules_cmd, sban_cmd, cancel_cmd, meme_callback
 # endregion
 
@@ -40,8 +40,8 @@ def add_handlers(dp: Dispatcher):
         dp.add_handler(CommandHandler("start", start_cmd))
         dp.add_handler(CommandHandler("help", help_cmd))
         dp.add_handler(CommandHandler("rules", rules_cmd))
-        dp.add_handler(CommandHandler("sban", sban_cmd))
         dp.add_handler(CommandHandler("settings", settings_cmd))
+        dp.add_handler(CommandHandler("sban", sban_cmd))
 
         # Conversation handler
         dp.add_handler(
@@ -56,6 +56,8 @@ def add_handlers(dp: Dispatcher):
                                 allow_reentry=True))
         # MessageHandler
         dp.add_handler(MessageHandler(Filters.reply & Filters.regex(r"^/ban$"), ban_cmd))
+        dp.add_handler(MessageHandler(Filters.reply & Filters.regex(r"^/reply"), reply_cmd))
+
         # Callback handlers
         dp.add_handler(CallbackQueryHandler(meme_callback, pattern=r"^meme_settings_\.*"))
         dp.add_handler(CallbackQueryHandler(meme_callback, pattern=r"^meme_approve_\.*"))

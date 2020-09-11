@@ -136,16 +136,14 @@ def ban_cmd(update: Update, context: CallbackContext):
     if info['chat_id'] == config_map['meme']['group_id']:  # you have to be in the admin group
         db = DbManager()
         g_message_id = update.message.reply_to_message.message_id
-        user_id_list = db.select_from_where(table_name="pending_meme",
-                                            where=f"g_message_id = '{g_message_id}' and group_id = '{info['chat_id']}'",
-                                            select="user_id")
-        if len(user_id_list) == 0:
+        user_id = db_get_user_id(g_message_id=g_message_id, group_id=info['chat_id'])
+
+        if user_id is None:
             info['bot'].send_message(chat_id=info['chat_id'], text="Per bannare qualcuno, rispondi al suo post con /ban")
             return
 
-        user_id = user_id_list[0]['user_id']
         db.query_from_string(f"INSERT INTO banned_users (user_id) VALUES ('{user_id}')")
-        db_clean_pending_meme(g_message_id, info['chat_id'])
+        db_clean_pending_meme(g_message_id=g_message_id, group_id=info['chat_id'])
         info['bot'].delete_message(chat_id=info['chat_id'], message_id=g_message_id)
         info['bot'].send_message(chat_id=info['chat_id'], text="L'utente è stato bannato")
 
@@ -167,6 +165,28 @@ def sban_cmd(update: Update, context: CallbackContext):
         for user_id in context.args:
             db.query_from_string(f"DELETE FROM banned_users WHERE user_id = '{user_id}'")
         info['bot'].send_message(chat_id=info['chat_id'], text="Sban effettuato")
+
+
+def reply_cmd(update: Update, context: CallbackContext):
+    """Handles the /reply command
+    Send a message to a user by replying to one of his pending posts with /reply + the message you want to send
+
+    Args:
+        update (Update): update event
+        context (CallbackContext): context passed by the handler
+    """
+    info = get_message_info(update, context)
+    if info['chat_id'] == config_map['meme']['group_id']:  # you have to be in the admin group
+        g_message_id = update.message.reply_to_message.message_id
+        user_id = db_get_user_id(g_message_id=g_message_id, group_id=info['chat_id'])
+        if user_id is None or len(info['text']) <= 7:
+            info['bot'].send_message(
+                chat_id=info['chat_id'],
+                text=
+                "Per mandare un messaggio ad un utente, rispondere al suo post con /reply seguito da ciò che gli si vuole dire"
+            )
+            return
+        info['bot'].send_message(chat_id=user_id, text="COMUNICAZIONE DEGLI ADMIN SUL TUO ULTIMO POST:\n" + info['text'][7:])
 
 
 def cancel_cmd(update: Update, context: CallbackContext) -> int:
@@ -209,15 +229,15 @@ def post_msg(update: Update, context: CallbackContext) -> int:
             text="Questo tipo di messaggio non è supportato\nPuoi inviare solo testo, immagini, audio o video",
         )
         return STATE['end']
-    else:
-        info['bot'].send_message(chat_id=info['chat_id'],
-                                 text="Sei sicuro di voler publicare questo post?",
-                                 reply_to_message_id=info['message_id'],
-                                 reply_markup=InlineKeyboardMarkup([[
-                                     InlineKeyboardButton(text="Si", callback_data="meme_confirm_yes"),
-                                     InlineKeyboardButton(text="No", callback_data="meme_confirm_no")
-                                 ]]))
-        return STATE['confirm']
+
+    info['bot'].send_message(chat_id=info['chat_id'],
+                             text="Sei sicuro di voler publicare questo post?",
+                             reply_to_message_id=info['message_id'],
+                             reply_markup=InlineKeyboardMarkup([[
+                                 InlineKeyboardButton(text="Si", callback_data="meme_confirm_yes"),
+                                 InlineKeyboardButton(text="No", callback_data="meme_confirm_no")
+                             ]]))
+    return STATE['confirm']
 
 
 # endregion
@@ -243,13 +263,13 @@ def meme_callback(update: Update, context: CallbackContext) -> int:
         print("[error] (meme) meme_callback: the function corrisponding to this callback_data was not found")
         print(f"callback_data: {data}, Argument passed: {data[5:]}_callback")
 
-    if message_text:  # if there is a valid response, edit the menu with the reply
+    if message_text:  # if there is a valid text, edit the menu with the new text
         info['bot'].edit_message_text(chat_id=info['chat_id'],
                                       message_id=info['message_id'],
                                       text=message_text,
                                       reply_markup=reply_markup,
                                       parse_mode=ParseMode.MARKDOWN_V2)
-    elif reply_markup:
+    elif reply_markup:  # if there is a valid reply_markup, edit the menu with the new reply_markup
         info['bot'].edit_message_reply_markup(chat_id=info['chat_id'],
                                               message_id=info['message_id'],
                                               reply_markup=reply_markup,
@@ -376,20 +396,19 @@ def approve_yes_callback(update: Update, context: CallbackContext) -> Tuple[str,
     info = get_callback_info(update, context)
     n_approve = db_set_admin_vote(info['sender_id'], info['message_id'], info['chat_id'], True)
 
-    if n_approve >= config_map['meme']['n_votes']:
+    if n_approve >= config_map['meme']['n_votes']:  # the post passed the approval phase and is to be published
         db = DbManager()
         message = update.callback_query.message
-        user_id = db.select_from_where(
-            select="user_id",
-            table_name="pending_meme",
-            where=f"g_message_id = '{info['message_id']}' and group_id = '{info['chat_id']}'")[0]['user_id']
+        user_id = db_get_user_id(g_message_id=info['message_id'], group_id=info['chat_id'])
         if len(db.select_from_where(table_name="credited_users",
                                     where=f"user_id = '{user_id}'")) == 1:  # the user wants to be credited
             username = info['bot'].getChat(user_id).username
             if username:
                 info['bot'].send_message(chat_id=config_map['meme']['channel_id'], text=f"CREDIT: @{username}")
+
         channel_message = send_message_to(message, info['bot'], "channel")
         db_insert_published_post(channel_message=channel_message)
+        info['bot'].send_message(chat_id=user_id, text="Il tuo ultimo post è stato approvato")
 
         info['bot'].delete_message(chat_id=info['chat_id'], message_id=info['message_id'])
         db_clean_pending_meme(info['message_id'], info['chat_id'])
@@ -419,6 +438,9 @@ def approve_no_callback(update: Update, context: CallbackContext) -> Tuple[str, 
 
     if n_reject >= config_map['meme']['n_votes']:
         info['bot'].delete_message(chat_id=info['chat_id'], message_id=info['message_id'])
+        user_id = db_get_user_id(g_message_id=info['message_id'], group_id=info['chat_id'])
+        info['bot'].send_message(chat_id=user_id,
+                                 text="Il tuo ultimo post è stato rifiutato\nPuoi controllare le regole con /rules")
         db_clean_pending_meme(info['message_id'], info['chat_id'])
         return None, None, None
     if n_reject != -1:  # the vote changed
@@ -738,6 +760,25 @@ def db_get_published_votes(c_message_id: int, channel_id: int, vote: bool) -> in
                                where=f"c_message_id='{c_message_id}'\
                                         and channel_id = '{channel_id}'\
                                         and is_upvote = {vote}")
+
+
+def db_get_user_id(g_message_id: int, group_id: int) -> Optional[int]:
+    """Get the user_id of the user that made the pending post
+
+    Args:
+        g_message_id (int): id of the post in question in the group
+        group_id (int): id of the admin group
+
+    Returns:
+        Optional[int]: user_id, if found
+    """
+    db = DbManager()
+    list_user_id = db.select_from_where(select="user_id",
+                                        table_name="pending_meme",
+                                        where=f"g_message_id = '{g_message_id}' and group_id = '{group_id}'")
+    if list_user_id:
+        return list_user_id[0]['user_id']
+    return None
 
 
 # endregion

@@ -1,22 +1,23 @@
 FROM python:3.8.5
 
-ARG TOKEN
-ARG DATA_REMOTE=1
-ARG DATABASE_URL
-ARG WEBHOOK_ENABLED=1
-ARG WEB_URL
-ARG MEME_ENABLED=1
-ARG GROUP_ID
-ARG CHANNEL_ID
+ARG TOKEN=none
+ARG DATA_REMOTE=false
+ARG DATABASE_URL=none
+ARG WEBHOOK_ENABLED=false
+ARG WEB_URL=none
+ARG MEME_ENABLED=true
+ARG GROUP_ID=none
+ARG CHANNEL_ID=none
 
 ENV BOT_DIR    /app
 
 WORKDIR $BOT_DIR
 
-COPY . .
+COPY requirements.txt .
 #Install requirements
-RUN pip3 install -r ${BOT_DIR}/requirements.txt
+RUN pip3 install -r requirements.txt
 
+COPY . .
 #Setup settings and databases
 RUN mv data/db/sqlite.db.dist data/db/sqlite.db &&\
   mv config/settings.yaml.dist config/settings.yaml &&\
