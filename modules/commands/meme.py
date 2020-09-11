@@ -255,7 +255,7 @@ def meme_callback(update: Update, context: CallbackContext) -> int:
         message_text, reply_markup, output = globals()[f'{data[5:]}_callback'](update,
                                                                                context)  # call the function based on its name
     except KeyError:
-        message_text = False
+        message_text = reply_markup = output = None
         print("[error] (meme) meme_callback: the function corrisponding to this callback_data was not found")
         print(f"callback_data: {data}, Argument passed: {data[5:]}_callback")
 
@@ -287,18 +287,14 @@ def confirm_yes_callback(update: Update, context: CallbackContext) -> Tuple[str,
         and the output value
     """
     info = get_callback_info(update, context)
-    try:
-        user_message = update.callback_query.message.reply_to_message
-        admin_message = send_message_to(user_message, info['bot'], destination="admin")
-        if admin_message:
-            MemeData.insert_pending_post(user_message, admin_message)
-            text = "Il tuo post è in fase di valutazione\n"\
-            f"Una volta pubblicato, lo potrai trovare sul [canale]({config_map['meme']['channel_id']})"
-        else:
-            text = "Si è verificato un problema\nAssicurati che il tipo di post sia fra quelli consentiti"
-    except KeyError as e:
-        print("[error] confirm_yes_callback: " + str(e))
-        text = "Si è verificato un problema"
+    user_message = update.callback_query.message.reply_to_message
+    admin_message = send_message_to(message=user_message, bot=info['bot'], destination="admin")
+    if admin_message:
+        MemeData.insert_pending_post(user_message, admin_message)
+        text = "Il tuo post è in fase di valutazione\n"\
+        f"Una volta pubblicato, lo potrai trovare sul [canale]({config_map['meme']['channel_id']})"
+    else:
+        text = "Si è verificato un problema\nAssicurati che il tipo di post sia fra quelli consentiti"
     return text, None, STATE['end']
 
 
@@ -449,7 +445,10 @@ def vote_yes_callback(update: Update, context: CallbackContext) -> Tuple[str, In
         and the output value
     """
     info = get_callback_info(update, context)
-    n_upvotes = MemeData.set_user_vote(info['sender_id'], info['message_id'], info['chat_id'], True)
+    n_upvotes = MemeData.set_user_vote(user_id=info['sender_id'],
+                                       c_message_id=info['message_id'],
+                                       channel_id=info['chat_id'],
+                                       vote=True)
 
     if n_upvotes != -1:  # the vote changed
         keyboard = update.callback_query.message.reply_markup.inline_keyboard
@@ -471,7 +470,10 @@ def vote_no_callback(update: Update, context: CallbackContext) -> Tuple[str, Inl
         and the output value
     """
     info = get_callback_info(update, context)
-    n_downvotes = MemeData.set_user_vote(info['sender_id'], info['message_id'], info['chat_id'], False)
+    n_downvotes = MemeData.set_user_vote(user_id=info['sender_id'],
+                                         c_message_id=info['message_id'],
+                                         channel_id=info['chat_id'],
+                                         vote=False)
 
     if n_downvotes != -1:  # the vote changed
         keyboard = update.callback_query.message.reply_markup.inline_keyboard
@@ -575,11 +577,11 @@ def get_approve_keyboard(keyboard: List[List[InlineKeyboardButton]],
     if approve >= 0:
         keyboard[0][0].text = f"🟢 {approve}"
     else:
-        keyboard[0][0].text = f"🟢 {MemeData.get_pending_votes(g_message_id, group_id, True)}"
+        keyboard[0][0].text = f"🟢 {MemeData.get_pending_votes(g_message_id, group_id, vote=True)}"
     if reject >= 0:
         keyboard[0][1].text = f"🔴 {reject}"
     else:
-        keyboard[0][1].text = f"🔴 {MemeData.get_pending_votes(g_message_id, group_id, False)}"
+        keyboard[0][1].text = f"🔴 {MemeData.get_pending_votes(g_message_id, group_id, vote=False)}"
     return InlineKeyboardMarkup(keyboard)
 
 
@@ -603,9 +605,9 @@ def get_vote_keyboard(keyboard: List[List[InlineKeyboardButton]],
     if upvote >= 0:
         keyboard[0][0].text = f"👍 {upvote}"
     else:
-        keyboard[0][0].text = f"👍 {MemeData.get_published_votes(c_message_id, channel_id, True)}"
+        keyboard[0][0].text = f"👍 {MemeData.get_published_votes(c_message_id, channel_id, vote=True)}"
     if downvote >= 0:
         keyboard[0][1].text = f"👎 {downvote}"
     else:
-        keyboard[0][1].text = f"👎 {MemeData.get_published_votes(c_message_id, channel_id, False)}"
+        keyboard[0][1].text = f"👎 {MemeData.get_published_votes(c_message_id, channel_id, vote=False)}"
     return InlineKeyboardMarkup(keyboard)

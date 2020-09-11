@@ -77,10 +77,11 @@ class MemeData():
             Optional[bool]: a bool representing the vote or None if a vote was not yet made
         """
 
-        vote = DbManager.query_from_string(f"SELECT is_upvote FROM admin_votes\
-                                        WHERE admin_id = '{admin_id}'\
-                                        and g_message_id = '{g_message_id}'\
-                                        and group_id = '{group_id}'")
+        vote = DbManager.select_from_where(select="is_upvote",
+                                           table_name="admin_votes",
+                                           where=f"admin_id = '{admin_id}'\
+                                                and g_message_id = '{g_message_id}'\
+                                                and group_id = '{group_id}'")
 
         if len(vote) == 0:  # the vote is not present
             return None
@@ -135,14 +136,14 @@ class MemeData():
                                     f"VALUES ('{channel_id}', '{c_message_id}')")
 
     @staticmethod
-    def set_user_vote(user_id: int, c_message_id: int, channel_id: int, approval: bool) -> int:
+    def set_user_vote(user_id: int, c_message_id: int, channel_id: int, vote: bool) -> int:
         """Adds the vote of the user on a specific post, or update the existing vote, if needed
 
         Args:
             user_id (int): id of the user that voted
             c_message_id (int): id of the post in question in the channel
             channel_id (int): id of the channel
-            approval (bool): whether it is an upvote or a downvote
+            vote (bool): whether it is an upvote or a downvote
 
         Returns:
             int: number of similar votes (all the upvotes or the downvotes), or -1 if the vote wasn't updated
@@ -154,14 +155,14 @@ class MemeData():
                                     VALUES ('{user_id}',\
                                             '{c_message_id}',\
                                             '{channel_id}',\
-                                            {approval})")
-            number_of_votes = MemeData.get_published_votes(c_message_id, channel_id, approval)
-        elif bool(vote) != approval:  # the vote was different from the approval
-            DbManager.query_from_string(f"UPDATE votes SET is_upvote = {approval}\
+                                            {vote})")
+            number_of_votes = MemeData.get_published_votes(c_message_id, channel_id, vote)
+        elif bool(vote) != vote:  # the vote was different from the vote
+            DbManager.query_from_string(f"UPDATE votes SET is_upvote = {vote}\
                                     WHERE user_id = '{user_id}'\
                                         and c_message_id = '{c_message_id}'\
                                         and channel_id = '{channel_id}'")
-            number_of_votes = MemeData.get_published_votes(c_message_id, channel_id, approval)
+            number_of_votes = MemeData.get_published_votes(c_message_id, channel_id, vote)
         else:
             return -1
         return number_of_votes
@@ -179,10 +180,11 @@ class MemeData():
             Optional[bool]: a bool representing the vote or None if a vote was not yet made
         """
 
-        vote = DbManager.query_from_string(f"SELECT is_upvote FROM votes\
-                                        WHERE user_id = '{user_id}'\
-                                        and c_message_id = '{c_message_id}'\
-                                        and channel_id = '{channel_id}'")
+        vote = DbManager.select_from_where(select="is_upvote",
+                                           table_name="votes",
+                                           where=f"user_id = '{user_id}'\
+                                                and c_message_id = '{c_message_id}'\
+                                                and channel_id = '{channel_id}'")
 
         if len(vote) == 0:  # the vote is not present
             return None
