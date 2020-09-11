@@ -14,23 +14,27 @@ def log_message(update, context):
         update (Update): update event
         context (CallbackContext): context passed by the handler
     """
-    with open(get_abs_path("logs", "messages.log"), "a", encoding="utf8") as log_file:
+    if update.message:
         try:
-            user = update.message.from_user
-            chat = update.message.chat
-            message = f"\n___ID MESSAGE:  {str(update.message.message_id)} ____\n"\
-                    "___INFO USER___\n"\
-                    f"user_id:  {str(user.id)}\n"\
-                    f"user_name:  {str(user.username)}\n"\
-                    f"user_first_lastname: {str(user.first_name)} {str(user.last_name)}\n"\
-                    "___INFO CHAT___\n"\
-                    f"chat_id:  {str(chat.id)}\n"\
-                    f"chat_type:  {str(chat.type)}\n"\
-                    f"chat_title:  {str(chat.title)}\n"\
-                    "___TESTO___\n"\
-                    f"text:  {str(update.message.text)}\n"\
-                    f"date:  {str(update.message.date)}"\
-                    "\n_____________\n"
-            log_file.write("\n" + message)
+            with open(get_abs_path("logs", "messages.log"), "a", encoding="utf8") as log_file:
+
+                user = update.message.from_user
+                chat = update.message.chat
+                message = f"\n___ID MESSAGE:  {str(update.message.message_id)} ____\n"\
+                        "___INFO USER___\n"\
+                        f"user_id:  {str(user.id)}\n"\
+                        f"user_name:  {str(user.username)}\n"\
+                        f"user_first_lastname: {str(user.first_name)} {str(user.last_name)}\n"\
+                        "___INFO CHAT___\n"\
+                        f"chat_id:  {str(chat.id)}\n"\
+                        f"chat_type:  {str(chat.type)}\n"\
+                        f"chat_title:  {str(chat.title)}\n"\
+                        "___TESTO___\n"\
+                        f"text:  {str(update.message.text)}\n"\
+                        f"date:  {str(update.message.date)}"\
+                        "\n_____________\n"
+                log_file.write("\n" + message)
+        except AttributeError as e:
+            logger.warning(e)
         except FileNotFoundError as e:
-            print("[error] local_log_message: " + str(e))
+            logger.error(e)
