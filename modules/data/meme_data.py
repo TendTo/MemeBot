@@ -6,8 +6,8 @@ from modules.data.data_reader import config_map
 
 init = DbManager()  # initialize the database
 if config_map['meme']['reset_on_load']:
-    init.query_from_file("data", "db", "meme_del.sql")
-init.query_from_file("data", "db", "meme_init.sql")  # remove temporarely to clean the database
+    init.query_from_file("data", "db", "meme_db_del.sql")
+init.query_from_file("data", "db", "meme_db_init.sql")  # remove temporarely to clean the database
 del init
 
 
