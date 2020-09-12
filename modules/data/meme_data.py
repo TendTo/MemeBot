@@ -149,17 +149,14 @@ class MemeData():
             int: number of similar votes (all the upvotes or the downvotes), or -1 if the vote wasn't updated
         """
 
-        vote = MemeData.get_user_vote(user_id, c_message_id, channel_id)
-        if vote is None:  # there isn't a vote yet
+        current_vote = MemeData.get_user_vote(user_id, c_message_id, channel_id)
+        if current_vote is None:  # there isn't a vote yet
             DbManager.query_from_string(f"INSERT INTO votes (user_id, c_message_id, channel_id, is_upvote)\
-                                    VALUES ('{user_id}',\
-                                            '{c_message_id}',\
-                                            '{channel_id}',\
-                                            {vote})")
+                                            VALUES ('{user_id}', '{c_message_id}', '{channel_id}', {vote})")
             number_of_votes = MemeData.get_published_votes(c_message_id, channel_id, vote)
-        elif bool(vote) != vote:  # the vote was different from the vote
+        elif bool(current_vote) != vote:  # the vote was different from the vote
             DbManager.query_from_string(f"UPDATE votes SET is_upvote = {vote}\
-                                    WHERE user_id = '{user_id}'\
+                                        WHERE user_id = '{user_id}'\
                                         and c_message_id = '{c_message_id}'\
                                         and channel_id = '{channel_id}'")
             number_of_votes = MemeData.get_published_votes(c_message_id, channel_id, vote)
