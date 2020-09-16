@@ -10,24 +10,24 @@ Please note that the commands and their answers are in Italian.
 
 ---
 
-### :wrench: Setting up a local istance
+## :wrench: Setting up a local istance
 
-##### System requirements
+#### System requirements
 - Python 3
 - python-pip3
 - [optional] sphinx (for documentation purposes)
 
-##### Install with *pip3*
+#### Install with *pip3*
 Listed in requirements.txt
 - python-telegram-bot
 - requests
 - PyYAML
 - psycopg2-binary
 
-#### Steps:
+### Steps:
 - Clone this repository
 - Rename "data/db/sqlite.db.dist" in "data/db/sqlite.db"
-- Rename "config/settings.yaml.dist" in "config/settings.yaml" and edit the desired parameters
+- Rename "config/settings.yaml.dist" in "config/settings.yaml" and edit the desired parameters:
 	- **data:**
 		- **db_url:** url of your postgres database (false recommended for local)
 		- **remote** whether the data will be saved remotely (postgres) or locally (mysql)
@@ -44,20 +44,20 @@ Listed in requirements.txt
 	- **webhook:**
 		- **enabled:** whether or not the bot should use webhook (false recommended for local)
 		- **url:** the url used by the webhook
-- **Run**`python3 main.py`
+- **Run** `python3 main.py`
 
-#### [Optional] Generate documentation:
-- **Run**`sphinx-apidoc -o docs .` to update the documentation based on the index.rts. If you didn't modify anything, you can skip this
-- **Run**`sphinx-build -b html docs docs/_build` to update the make file
-- **Run**`docs/make html` to produce the documentation
+### [Optional] Generate documentation:
+- **Run** `sphinx-apidoc -o docs .` to update the documentation based on the index.rts. If you didn't modify anything, you can skip this
+- **Run** `sphinx-build -b html docs docs/_build` to update the make file
+- **Run** `docs/make html` to produce the documentation
 
-### :whale: Setting up a Docker container
+## :whale: Setting up a Docker container
 
-##### System requirements
+#### System requirements
 - Docker
 
 
-#### Steps:
+### Steps:
 - Clone this repository
 - In "config/settings.yaml.dist", edit the desired values. Be mindful that the one listed below will overwrite the ones in "config/settings.yaml.dist", even if they aren't used in the command line
 - **Run** `docker build --tag botimage --build-arg TOKEN=<token_arg> [...] .` 
@@ -66,15 +66,15 @@ Listed in requirements.txt
 | --- | --- | --- | --- |
 | **TOKEN=<token_args>** | string | the token for your telegram bot | REQUIRED |
 | **WEBHOOK_ENABLED=<webhook_enabled>** | bool | whether or not the bot should use webhook<br>(false recommended for local) | OPTIONAL - defaults to false |
-| **WEB_URL=<web_url>** | string | the url used by the webhook | REQUIRED IF webhook_enabled = true |
+| **WEB_URL=<web_url>** | string | the url used by the webhook | REQUIRED IF<br>webhook_enabled = true |
 | **DATA_REMOTE=<data_remote>** | bool | whether the data will be saved remotely (postgres) or locally (mysql)<br>(false recommended for local) | OPTIONAL - defaults to false |
-| **DATABASE_URL=<db_url>** | string | url of your postgres database | REQUIRED IF data_remote = true |
+| **DATABASE_URL=<db_url>** | string | url of your postgres database | REQUIRED IF<br>data_remote = true |
 | **MEME_ENABLED=<meme_enabled>** | bool | whether the memebot is enabled | OPTIONAL - defaults to true |
-| **GROUP_ID=<group_id>** | int | id of the admin group the memebot will use | REQUIRED IF meme_enabled = true |
-| **CHANNEL_ID=<channel_id>** | string | tag of your channel, @ included | REQUIRED IF meme_enabled = true |
-- **Run**`docker run -d --name botcontainer botimage`
+| **GROUP_ID=<group_id>** | int | id of the admin group the memebot will use | REQUIRED IF<br>meme_enabled = true |
+| **CHANNEL_ID=<channel_id>** | string | tag of your channel, @ included | REQUIRED IF<br>meme_enabled = true |
+- **Run** `docker run -d --name botcontainer botimage`
 
-#### To stop/remove the container:
+### To stop/remove the container:
 - **Run** `docker stop botcontainer` to stop the container
 - **Run** `docker rm -f botcontainer` to remove the container
 
