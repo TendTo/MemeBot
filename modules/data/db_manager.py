@@ -63,26 +63,20 @@ class DbManager():
         conn.close()
 
     @staticmethod
-    def query_from_string(*queries: str) -> list:
+    def query_from_string(*queries: str):
         """Commit all the queries in the string
+        Should not be used to select something
 
         Args:
             queries (str): tuple of queries
-
-        Returns:
-            list: result of the query, if any
         """
         conn, cur = DbManager.get_db()
         for query in queries:
             cur.execute(query)
-        try:
-            output = cur.fetchall()
-        except psycopg2.ProgrammingError:
-            output = None
+
         conn.commit()
         cur.close()
         conn.close()
-        return output
 
     @staticmethod
     def select_from(table_name: str, select: str = "*") -> list:

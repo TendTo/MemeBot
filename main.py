@@ -2,6 +2,7 @@
 # region imports
 # libs
 import os
+import warnings
 # telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, ConversationHandler,\
      Filters, Dispatcher, DispatcherHandlerStop
@@ -10,8 +11,9 @@ from modules.debug.log_manager import log_message
 # data
 from modules.data.data_reader import config_map
 # commands
-from modules.commands.meme import STATE, start_cmd, help_cmd, settings_cmd, post_cmd, ban_cmd, reply_cmd, post_msg,\
-    rules_cmd, sban_cmd, cancel_cmd, meme_callback
+from modules.commands.command_handlers import STATE, start_cmd, help_cmd, settings_cmd, post_cmd, ban_cmd, reply_cmd,\
+    post_msg, rules_cmd, sban_cmd, cancel_cmd
+from modules.commands.callback_handlers import meme_callback
 # endregion
 
 
@@ -79,5 +81,7 @@ def main():
     updater.idle()
 
 
+warnings.filterwarnings("ignore",
+                        message="If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message.")
 if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-"""Common operation for each command_handle module"""
+"""Common info needed in both command and callback handlers"""
 from telegram import Update
 from telegram.ext import CallbackContext
 
@@ -31,12 +31,13 @@ def get_callback_info(update: Update, context: CallbackContext) -> dict:
         context (CallbackContext): context passed by the handler
 
     Returns:
-        dict: {bot, chat_id, text, message_id, sender_first_name, sender_id}
+        dict: {bot, chat_id, text, data, message_id, sender_first_name, sender_id}
     """
     return {
         'bot': context.bot,
         'chat_id': update.callback_query.message.chat_id,
         'text': update.callback_query.message.text,
+        'data': update.callback_query.data,
         'message_id': update.callback_query.message.message_id,
         'sender_first_name': update.callback_query.from_user.first_name,
         'sender_id': update.callback_query.from_user.id

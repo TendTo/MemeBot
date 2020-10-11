@@ -4,11 +4,9 @@ from telegram import Message
 from modules.data.db_manager import DbManager
 from modules.data.data_reader import config_map
 
-init = DbManager()  # initialize the database
 if config_map['meme']['reset_on_load']:
-    init.query_from_file("data", "db", "meme_db_del.sql")
-init.query_from_file("data", "db", "meme_db_init.sql")  # remove temporarely to clean the database
-del init
+    DbManager.query_from_file("data", "db", "meme_db_del.sql")
+DbManager.query_from_file("data", "db", "meme_db_init.sql")  # remove temporarely to clean the database
 
 
 # region db management
@@ -279,7 +277,7 @@ class MemeData():
             user_id (int): id of the user to make anonym
 
         Returns:
-            bool: whether the user was alreasy anonym
+            bool: whether the user was already anonym
         """
         was_anonym = DbManager.count_from_where(table_name="credited_users", where=f"user_id = '{user_id}'") == 0
         if not was_anonym:
