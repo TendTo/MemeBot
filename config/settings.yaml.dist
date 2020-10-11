@@ -10,6 +10,13 @@ meme:
   group_id: ''
   n_votes: 1
   reset_on_load: false
+test:
+  api_hash: ''
+  api_id: -1
+  remote: [true, false]
+  session: ''
+  tag: ''
+  token: ''
 token: ''
 webhook:
   enabled: false
