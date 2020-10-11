@@ -120,7 +120,7 @@ config/one_liner.py
 logs/errors.txt
 logs/logs.txt
 logs/chatid.txt
-*.yaml
+config/*.yaml
 module/*.pyc
 .vscode
 test.py

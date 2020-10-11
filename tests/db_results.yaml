@@ -1,0 +1,15 @@
+select_from: 
+  '1, Test1, t1
+
+2, Test2, t2
+
+3, Test3, t3
+
+4, Test4, t4
+
+5, Test5, t5'
+select_from_where:
+  '2, Test2
+
+3, Test3'
+count_from_where: 4
