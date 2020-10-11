@@ -22,13 +22,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pytest
+          pip install flake8 pytest pytest-asyncio telethon
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Setup enviroment
         run: |
           mv data/db/sqlite.db.dist data/db/sqlite.db
           mv config/settings.yaml.dist config/settings.yaml
-          python3 settings.py -t ${{secrets.TOKEN}} -d ${{secrets.DATABASE_URL}} -w false -m false
+          python3 settings.py -t ${{secrets.TOKEN}} -d ${{secrets.DATABASE_URL}} -w false
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
