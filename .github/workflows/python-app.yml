@@ -56,7 +56,6 @@ jobs:
             DATABASE_URL
             WEBHOOK_ENABLED
             WEB_URL
-            MEME_ENABLED
             GROUP_ID
             CHANNEL_ID
         env:
@@ -65,6 +64,5 @@ jobs:
           DATABASE_URL: ${{secrets.DATABASE_URL}}
           WEBHOOK_ENABLED: 1
           WEB_URL: ${{secrets.WEB_URL}}
-          MEME_ENABLED: 1
           GROUP_ID: ${{secrets.GROUP_ID}}
           CHANNEL_ID: ${{secrets.CHANNEL_ID}}

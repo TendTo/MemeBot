@@ -5,7 +5,6 @@ ARG DATA_REMOTE=false
 ARG DATABASE_URL=none
 ARG WEBHOOK_ENABLED=false
 ARG WEB_URL=none
-ARG MEME_ENABLED=true
 ARG GROUP_ID=none
 ARG CHANNEL_ID=none
 
@@ -21,7 +20,7 @@ COPY . .
 #Setup settings and databases
 RUN mv data/db/sqlite.db.dist data/db/sqlite.db &&\
   mv config/settings.yaml.dist config/settings.yaml &&\
-  python3 settings.py -t ${TOKEN} -l ${DATA_REMOTE} -d ${DATABASE_URL} -w ${WEBHOOK_ENABLED} -u ${WEB_URL} -m ${MEME_ENABLED} -g ${GROUP_ID} -c ${CHANNEL_ID}
+  python3 settings.py -t ${TOKEN} -l ${DATA_REMOTE} -d ${DATABASE_URL} -w ${WEBHOOK_ENABLED} -u ${WEB_URL} -g ${GROUP_ID} -c ${CHANNEL_ID}
 
 #Cleanup
 RUN rm settings.py &&\

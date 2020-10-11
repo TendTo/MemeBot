@@ -9,8 +9,7 @@ help_message = "settings.py -t <token>\n\n"\
             "-d --database <database_url>   set the data:db_url variable\n\n"\
             "-w --webhook [enable_webhook]  set the webhook:enabled variable (defaults to true)\n"\
             "-u --url [web_url]             set the webhook:url variable\n\n"\
-            "-m --meme                      set the meme:enabled variable (defaults to true)\n"\
-            "-g --group [group_id]          set the meme:group_id variable. It is needed if meme is enabled\n"\
+            "-g --group [group_id]          set the meme:group_id variable\n"\
             "-c --channel [channel_id]      set the meme:channel_id variable\n\n"\
             "-p --path [settings_path]      set the path of the setting file (defaults to config/settings.yaml)\n" \
             "-r --revert                    set token and db_url to \"\" and enable_webhook to true"
@@ -20,7 +19,6 @@ is_remote = True
 url_database = ""
 webhook_enabled = True
 web_url = ""
-meme_enabled = True
 group_id = ""
 channel_id = ""
 settings_path = "config/settings.yaml"
@@ -28,8 +26,8 @@ settings_path = "config/settings.yaml"
 try:
     # get a list of argv with the related option flag
     opts, args = getopt.getopt(
-        sys.argv[1:], "rht:d:p:w:m:g:u:c:l:",
-        ["help", "revert", "token=", "database=", "path=", "webhook=", "meme=", "group=", "url=", "channel=", "remote="])
+        sys.argv[1:], "rht:d:p:w:g:u:c:l:",
+        ["help", "revert", "token=", "database=", "path=", "webhook=", "group=", "url=", "channel=", "remote="])
 except getopt.GetoptError:
     print(help_message)
     sys.exit(2)
@@ -64,16 +62,12 @@ for opt, arg in opts:
     elif opt in ("-w", "--webhook"):  # set the webhook_enabled value to false...
         if arg.lower() in ("false", "no", "disable", "falso", "f", "n", "0", "-1"):  # if the parameter is in this list
             webhook_enabled = False
-    elif opt in ("-m", "--meme"):  # set the meme_enabled value to false...
-        if arg.lower() in ("false", "no", "disable", "falso", "f", "n", "0", "-1"):  # if the parameter is in this list
-            meme_enabled = False
     elif opt in ("-r", "--revert"):  # reset all values to their default
         new_token = ""
         is_remote = False
         url_database = ""
         webhook_enabled = True
         web_url = ""
-        meme_enabled = True
         group_id = ""
         channel_id = ""
         break
@@ -87,8 +81,8 @@ else:
     if webhook_enabled and not web_url:
         print("If webhook is enabled, a web_url must be provided\nYou can disable it with -w false")
         sys.exit(2)
-    if meme_enabled and (not group_id or not channel_id):
-        print("If meme is enabled, an group_id and channel_id must be provided\nYou can disable it with -m false")
+    if (not group_id or not channel_id):
+        print("A group_id and channel_id must be provided")
         sys.exit(2)
 
 try:
@@ -103,7 +97,6 @@ with open(settings_path, 'w') as yaml_file:
     config_map['data']['db_url'] = url_database
     config_map['webhook']['enabled'] = webhook_enabled
     config_map['webhook']['url'] = web_url
-    config_map['meme']['enabled'] = meme_enabled
     config_map['meme']['group_id'] = group_id
     config_map['meme']['channel_id'] = channel_id
     yaml.dump(config_map, yaml_file)
