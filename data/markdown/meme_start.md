@@ -1,4 +1,4 @@
-* \-\-\- Benvenuto su meme bot\! \-\-\- *
+*\-\-\- Benvenuto su meme bot\! \-\-\-*
 
 1\. _Di cosa si tratta?_
 
