@@ -1,7 +1,7 @@
 """Commands for the meme bot"""
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, ForceReply, Message
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, ForceReply
 from telegram.ext import CallbackContext
-from modules.utils.info_util import get_message_info
+from modules.utils.info_util import get_message_info, check_message_type
 from modules.data.data_reader import read_md, config_map
 from modules.data.meme_data import MemeData
 
@@ -135,7 +135,7 @@ def ban_cmd(update: Update, context: CallbackContext):
             return
 
         MemeData.ban_user(user_id=user_id)
-        MemeData.clean_pending_meme(g_message_id=g_message_id, group_id=info['chat_id'])
+        MemeData.remove_pending_meme(g_message_id=g_message_id, group_id=info['chat_id'])
         info['bot'].delete_message(chat_id=info['chat_id'], message_id=g_message_id)
         info['bot'].send_message(chat_id=info['chat_id'], text="L'utente è stato bannato")
 
@@ -183,7 +183,7 @@ def reply_cmd(update: Update, context: CallbackContext):
             )
             return
         info['bot'].send_message(chat_id=user_id,
-                                 text="COMUNICAZIONE DEGLI ADMIN SUL TUO ULTIMO POST:\n" + info['text'][7:].trim())
+                                 text="COMUNICAZIONE DEGLI ADMIN SUL TUO ULTIMO POST:\n" + info['text'][7:].strip())
 
 
 def cancel_cmd(update: Update, context: CallbackContext) -> int:
@@ -238,16 +238,3 @@ def post_msg(update: Update, context: CallbackContext) -> int:
 
 
 # endregion
-
-
-def check_message_type(message: Message) -> bool:
-    """Check that the type of the message is one of the ones supported
-
-    Args:
-        message (Message): message to check
-
-    Returns:
-        bool: whether its type is supported or not
-    """
-    return message.text or message.photo or message.voice or message.audio\
-    or message.video or message.animation or message.sticker

@@ -11,9 +11,9 @@ from modules.debug.log_manager import log_message
 # data
 from modules.data.data_reader import config_map
 # commands
-from modules.commands.command_handlers import STATE, start_cmd, help_cmd, settings_cmd, post_cmd, ban_cmd, reply_cmd,\
+from modules.handlers.command_handlers import STATE, start_cmd, help_cmd, settings_cmd, post_cmd, ban_cmd, reply_cmd,\
     post_msg, rules_cmd, sban_cmd, cancel_cmd
-from modules.commands.callback_handlers import meme_callback
+from modules.handlers.callback_handlers import meme_callback
 # endregion
 
 
@@ -59,9 +59,7 @@ def add_handlers(dp: Dispatcher):
     dp.add_handler(MessageHandler(Filters.reply & Filters.regex(r"^/reply"), reply_cmd))
 
     # Callback handlers
-    dp.add_handler(CallbackQueryHandler(meme_callback, pattern=r"^meme_settings_\.*"))
-    dp.add_handler(CallbackQueryHandler(meme_callback, pattern=r"^meme_approve_\.*"))
-    dp.add_handler(CallbackQueryHandler(meme_callback, pattern=r"^meme_vote_\.*"))
+    dp.add_handler(CallbackQueryHandler(meme_callback, pattern=r"^meme_\.*"))
 
 
 def main():

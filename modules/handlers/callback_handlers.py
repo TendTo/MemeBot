@@ -1,10 +1,11 @@
 """Commands for the meme bot"""
-from typing import Tuple, List
+from typing import Tuple
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, Message, Bot
 from telegram.ext import CallbackContext
-from modules.utils.info_util import get_callback_info
 from modules.data.data_reader import config_map
 from modules.data.meme_data import MemeData
+from modules.utils.info_util import get_callback_info
+from modules.utils.keyboard_util import get_approve_kb, get_vote_kb
 
 STATE = {'posting': 1, 'confirm': 2, 'end': -1}
 
@@ -56,7 +57,7 @@ def confirm_yes_callback(update: Update, context: CallbackContext) -> Tuple[str,
     """
     info = get_callback_info(update, context)
     user_message = update.callback_query.message.reply_to_message
-    admin_message = send_message_to(message=user_message, bot=info['bot'], destination="admin")
+    admin_message = send_post_to(message=user_message, bot=info['bot'], destination="admin")
     if admin_message:
         MemeData.insert_pending_post(user_message, admin_message)
         text = "Il tuo post è in fase di valutazione\n"\
@@ -155,16 +156,16 @@ def approve_yes_callback(update: Update, context: CallbackContext) -> Tuple[str,
             if username:
                 info['bot'].send_message(chat_id=config_map['meme']['channel_id'], text=f"CREDIT: @{username}")
 
-        channel_message = send_message_to(message, info['bot'], "channel")
+        channel_message = send_post_to(message, info['bot'], "channel")
         MemeData.insert_published_post(channel_message=channel_message)
         info['bot'].send_message(chat_id=user_id, text="Il tuo ultimo post è stato approvato")
 
         info['bot'].delete_message(chat_id=info['chat_id'], message_id=info['message_id'])
-        MemeData.clean_pending_meme(info['message_id'], info['chat_id'])
+        MemeData.remove_pending_meme(info['message_id'], info['chat_id'])
         return None, None, None
     if n_approve != -1:  # the vote changed
         keyboard = update.callback_query.message.reply_markup.inline_keyboard
-        return None, get_approve_keyboard(keyboard, info['message_id'], info['chat_id'], approve=n_approve), None
+        return None, get_approve_kb(keyboard, info['message_id'], info['chat_id'], approve=n_approve), None
 
     return None, None, None
 
@@ -189,11 +190,11 @@ def approve_no_callback(update: Update, context: CallbackContext) -> Tuple[str, 
         user_id = MemeData.get_user_id(g_message_id=info['message_id'], group_id=info['chat_id'])
         info['bot'].send_message(chat_id=user_id,
                                  text="Il tuo ultimo post è stato rifiutato\nPuoi controllare le regole con /rules")
-        MemeData.clean_pending_meme(info['message_id'], info['chat_id'])
+        MemeData.remove_pending_meme(info['message_id'], info['chat_id'])
         return None, None, None
     if n_reject != -1:  # the vote changed
         keyboard = update.callback_query.message.reply_markup.inline_keyboard
-        return None, get_approve_keyboard(keyboard, info['message_id'], info['chat_id'], reject=n_reject), None
+        return None, get_approve_kb(keyboard, info['message_id'], info['chat_id'], reject=n_reject), None
 
     return None, None, None
 
@@ -217,7 +218,7 @@ def vote_yes_callback(update: Update, context: CallbackContext) -> Tuple[str, In
 
     if n_upvotes != -1:  # the vote changed
         keyboard = update.callback_query.message.reply_markup.inline_keyboard
-        return None, get_vote_keyboard(keyboard, info['message_id'], info['chat_id'], upvote=n_upvotes), None
+        return None, get_vote_kb(keyboard, info['message_id'], info['chat_id'], upvote=n_upvotes), None
 
     return None, None, None
 
@@ -241,7 +242,7 @@ def vote_no_callback(update: Update, context: CallbackContext) -> Tuple[str, Inl
 
     if n_downvotes != -1:  # the vote changed
         keyboard = update.callback_query.message.reply_markup.inline_keyboard
-        return None, get_vote_keyboard(keyboard, info['message_id'], info['chat_id'], downvote=n_downvotes), None
+        return None, get_vote_kb(keyboard, info['message_id'], info['chat_id'], downvote=n_downvotes), None
 
     return None, None, None
 
@@ -249,7 +250,7 @@ def vote_no_callback(update: Update, context: CallbackContext) -> Tuple[str, Inl
 # endregion
 
 
-def send_message_to(message: Message, bot: Bot, destination: str) -> Message:
+def send_post_to(message: Message, bot: Bot, destination: str) -> Message:
     """Sends a message to the admins so that they can check the post before publishing it
 
     Args:
@@ -300,59 +301,3 @@ def send_message_to(message: Message, bot: Bot, destination: str) -> Message:
     if sticker:
         return bot.sendSticker(chat_id=chat_id, sticker=sticker, reply_markup=reply_markup)
     return None
-
-
-def get_approve_keyboard(keyboard: List[List[InlineKeyboardButton]],
-                         g_message_id: int,
-                         group_id: int,
-                         approve: int = -1,
-                         reject: int = -1) -> InlineKeyboardMarkup:
-    """Updates the new InlineKeyboard when the valutation of a pending post changes
-
-    Args:
-        keyboard (List[List[InlineKeyboardButton]]): previous keyboard
-        g_message_id (int): id of the pending post in question ni the admin group
-        group_id (int): id of the admin group
-        approve (int, optional): number of approve votes, if known. Defaults to -1.
-        reject (int, optional): number of reject votes, if known. Defaults to -1.
-
-    Returns:
-        InlineKeyboardMarkup: updated inline keyboard
-    """
-    if approve >= 0:
-        keyboard[0][0].text = f"🟢 {approve}"
-    else:
-        keyboard[0][0].text = f"🟢 {MemeData.get_pending_votes(g_message_id, group_id, vote=True)}"
-    if reject >= 0:
-        keyboard[0][1].text = f"🔴 {reject}"
-    else:
-        keyboard[0][1].text = f"🔴 {MemeData.get_pending_votes(g_message_id, group_id, vote=False)}"
-    return InlineKeyboardMarkup(keyboard)
-
-
-def get_vote_keyboard(keyboard: List[List[InlineKeyboardButton]],
-                      c_message_id: int,
-                      channel_id: int,
-                      upvote: int = -1,
-                      downvote: int = -1) -> InlineKeyboardMarkup:
-    """Updates the new InlineKeyboard when the valutation of a published post changes
-
-    Args:
-        keyboard (List[List[InlineKeyboardButton]]): previous keyboard
-        c_message_id (int): id of the published post in question
-        channel_id (int): id of the channel
-        upvote (int, optional): number of upvotes, if known. Defaults to -1.
-        downvote (int, optional): number of downvotes, if known. Defaults to -1.
-
-    Returns:
-        InlineKeyboardMarkup: updated inline keyboard
-    """
-    if upvote >= 0:
-        keyboard[0][0].text = f"👍 {upvote}"
-    else:
-        keyboard[0][0].text = f"👍 {MemeData.get_published_votes(c_message_id, channel_id, vote=True)}"
-    if downvote >= 0:
-        keyboard[0][1].text = f"👎 {downvote}"
-    else:
-        keyboard[0][1].text = f"👎 {MemeData.get_published_votes(c_message_id, channel_id, vote=False)}"
-    return InlineKeyboardMarkup(keyboard)

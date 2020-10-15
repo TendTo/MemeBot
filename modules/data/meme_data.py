@@ -6,7 +6,7 @@ from modules.data.data_reader import config_map
 
 if config_map['meme']['reset_on_load']:
     DbManager.query_from_file("data", "db", "meme_db_del.sql")
-DbManager.query_from_file("data", "db", "meme_db_init.sql")  # remove temporarely to clean the database
+DbManager.query_from_file("data", "db", "meme_db_init.sql")
 
 
 # region db management
@@ -21,14 +21,14 @@ class MemeData():
             user_message (Message): message sent by the user that contains the post
             admin_message (Message): message recieved in the admin group that references the post
         """
-
         user_id = user_message.from_user.id
         u_message_id = user_message.message_id
         g_message_id = admin_message.message_id
         group_id = admin_message.chat_id
 
-        DbManager.query_from_string("INSERT INTO pending_meme (user_id, u_message_id, g_message_id, group_id)" +
-                                    f"VALUES ('{user_id}', '{u_message_id}', '{g_message_id}', '{group_id}')")
+        DbManager.insert_into(table_name="pending_meme",
+                              columns=("user_id", "u_message_id", "g_message_id", "group_id"),
+                              values=(user_id, u_message_id, g_message_id, group_id))
 
     @staticmethod
     def set_admin_vote(admin_id: int, g_message_id: int, group_id: int, approval: bool) -> int:
@@ -43,14 +43,11 @@ class MemeData():
         Returns:
             int: number of similar votes (all the approve or the reject), or -1 if the vote wasn't updated
         """
-
         vote = MemeData.get_admin_vote(admin_id, g_message_id, group_id)
         if vote is None:  # there isn't a vote yet
-            DbManager.query_from_string(f"INSERT INTO admin_votes (admin_id, g_message_id, group_id, is_upvote)\
-                                    VALUES ('{admin_id}',\
-                                            '{g_message_id}',\
-                                            '{group_id}',\
-                                            {approval})")
+            DbManager.insert_into(table_name="admin_votes",
+                                  columns=("admin_id", "g_message_id", "group_id", "is_upvote"),
+                                  values=(admin_id, g_message_id, group_id, approval))
             number_of_votes = MemeData.get_pending_votes(g_message_id, group_id, approval)
         elif bool(vote) != approval:  # the vote was different from the approval
             DbManager.query_from_string(f"UPDATE admin_votes SET is_upvote = {approval}\
@@ -74,12 +71,10 @@ class MemeData():
         Returns:
             Optional[bool]: a bool representing the vote or None if a vote was not yet made
         """
-
-        vote = DbManager.select_from_where(select="is_upvote",
-                                           table_name="admin_votes",
-                                           where=f"admin_id = '{admin_id}'\
-                                                and g_message_id = '{g_message_id}'\
-                                                and group_id = '{group_id}'")
+        vote = DbManager.select_from(select="is_upvote",
+                                     table_name="admin_votes",
+                                     where="admin_id = %s and g_message_id = %s and group_id = %s",
+                                     where_args=(admin_id, g_message_id, group_id))
 
         if len(vote) == 0:  # the vote is not present
             return None
@@ -98,40 +93,37 @@ class MemeData():
         Returns:
             int: number of votes
         """
-
-        return DbManager.count_from_where(
-            "admin_votes", f"g_message_id='{g_message_id}'\
-                            and group_id = '{group_id}'\
-                            and is_upvote = {vote}")
+        return DbManager.count_from(table_name="admin_votes",
+                                    where="g_message_id = %s and group_id = %s and is_upvote = %s",
+                                    where_args=(g_message_id, group_id, vote))
 
     @staticmethod
-    def clean_pending_meme(g_message_id: int, group_id: int):
-        """Removes all remaining entries on a post that is no longer pending
+    def remove_pending_meme(g_message_id: int, group_id: int):
+        """Removes all entries on a post that is no longer pending
 
         Args:
             g_message_id (int): id of the no longer pending post in the group
             group_id (int): id of the admin group
         """
-
-        DbManager.query_from_string(f"DELETE FROM pending_meme\
-                            WHERE g_message_id = '{g_message_id}'\
-                                and group_id = '{group_id}'")
-        DbManager.query_from_string(f"DELETE FROM admin_votes\
-                            WHERE g_message_id = '{g_message_id}'\
-                                and group_id = '{group_id}'")
+        DbManager.delete_from(table_name="pending_meme",
+                              where="g_message_id = %s and group_id = %s",
+                              where_args=(g_message_id, group_id))
+        DbManager.delete_from(table_name="admin_votes",
+                              where="g_message_id = %s and group_id = %s",
+                              where_args=(g_message_id, group_id))
 
     @staticmethod
     def insert_published_post(channel_message: Message):
-        """Insert a new post in the table of pending posts
+        """Inserts a new post in the table of pending posts
 
         Args:
             channel_message (Message): message approved to be published
         """
-
         c_message_id = channel_message.message_id
         channel_id = channel_message.chat_id
-        DbManager.query_from_string("INSERT INTO published_meme (channel_id, c_message_id)" +
-                                    f"VALUES ('{channel_id}', '{c_message_id}')")
+        DbManager.insert_into(table_name="published_meme",
+                              columns=("channel_id", "c_message_id"),
+                              values=(channel_id, c_message_id))
 
     @staticmethod
     def set_user_vote(user_id: int, c_message_id: int, channel_id: int, vote: bool) -> int:
@@ -146,11 +138,11 @@ class MemeData():
         Returns:
             int: number of similar votes (all the upvotes or the downvotes), or -1 if the vote wasn't updated
         """
-
         current_vote = MemeData.get_user_vote(user_id, c_message_id, channel_id)
         if current_vote is None:  # there isn't a vote yet
-            DbManager.query_from_string(f"INSERT INTO votes (user_id, c_message_id, channel_id, is_upvote)\
-                                            VALUES ('{user_id}', '{c_message_id}', '{channel_id}', {vote})")
+            DbManager.insert_into(table_name="votes",
+                                  columns=("user_id", "c_message_id", "channel_id", "is_upvote"),
+                                  values=(user_id, c_message_id, channel_id, vote))
             number_of_votes = MemeData.get_published_votes(c_message_id, channel_id, vote)
         elif bool(current_vote) != vote:  # the vote was different from the vote
             DbManager.query_from_string(f"UPDATE votes SET is_upvote = {vote}\
@@ -174,12 +166,10 @@ class MemeData():
         Returns:
             Optional[bool]: a bool representing the vote or None if a vote was not yet made
         """
-
-        vote = DbManager.select_from_where(select="is_upvote",
-                                           table_name="votes",
-                                           where=f"user_id = '{user_id}'\
-                                                and c_message_id = '{c_message_id}'\
-                                                and channel_id = '{channel_id}'")
+        vote = DbManager.select_from(select="is_upvote",
+                                     table_name="votes",
+                                     where="user_id = %s and c_message_id = %s and channel_id = %s",
+                                     where_args=(user_id, c_message_id, channel_id))
 
         if len(vote) == 0:  # the vote is not present
             return None
@@ -197,11 +187,9 @@ class MemeData():
         Returns:
             int: number of votes
         """
-
-        return DbManager.count_from_where(table_name="votes",
-                                          where=f"c_message_id='{c_message_id}'\
-                                            and channel_id = '{channel_id}'\
-                                            and is_upvote = {vote}")
+        return DbManager.count_from(table_name="votes",
+                                    where="c_message_id = %s and channel_id = %s and is_upvote = %s",
+                                    where_args=(c_message_id, channel_id, vote))
 
     @staticmethod
     def get_user_id(g_message_id: int, group_id: int) -> Optional[int]:
@@ -214,10 +202,10 @@ class MemeData():
         Returns:
             Optional[int]: user_id, if found
         """
-
-        list_user_id = DbManager.select_from_where(select="user_id",
-                                                   table_name="pending_meme",
-                                                   where=f"g_message_id = '{g_message_id}' and group_id = '{group_id}'")
+        list_user_id = DbManager.select_from(select="user_id",
+                                             table_name="pending_meme",
+                                             where="g_message_id = %s and group_id = %s",
+                                             where_args=(g_message_id, group_id))
         if list_user_id:
             return list_user_id[0]['user_id']
         return None
@@ -232,7 +220,7 @@ class MemeData():
         Returns:
             bool: whether the user is banned or not
         """
-        return DbManager.count_from_where(table_name="banned_users", where=f"user_id = '{user_id}'") > 0
+        return DbManager.count_from(table_name="banned_users", where="user_id = %s", where_args=(user_id, )) > 0
 
     @staticmethod
     def is_pending(user_id: int) -> bool:
@@ -244,7 +232,7 @@ class MemeData():
         Returns:
             bool: whether the user still has a post pending or not
         """
-        return DbManager.count_from_where(table_name="pending_meme", where=f"user_id = '{user_id}'") > 0
+        return DbManager.count_from(table_name="pending_meme", where="user_id = %s", where_args=(user_id, )) > 0
 
     @staticmethod
     def ban_user(user_id: int):
@@ -253,7 +241,7 @@ class MemeData():
         Args:
             user_id (int): id of the user to ban
         """
-        DbManager.query_from_string(f"INSERT INTO banned_users (user_id) VALUES ('{user_id}')")
+        DbManager.insert_into(table_name="banned_users", columns=("user_id"), values=(user_id, ))
 
     @staticmethod
     def sban_user(user_id: int) -> bool:
@@ -265,8 +253,9 @@ class MemeData():
         Returns:
             bool: whether the user was present in the banned list before the sban or not
         """
-        out = DbManager.count_from_where(table_name="banned_users", where=f"user_id = '{user_id}'") > 0
-        DbManager.query_from_string(f"DELETE FROM banned_users WHERE user_id = '{user_id}'")
+        out = DbManager.count_from(table_name="banned_users", where="user_id = %s", where_args=(user_id, ))
+        if out > 0:
+            DbManager.delete_from(table_name="banned_users", where="user_id = %s", where_args=(user_id, ))
         return out
 
     @staticmethod
@@ -279,10 +268,10 @@ class MemeData():
         Returns:
             bool: whether the user was already anonym
         """
-        was_anonym = DbManager.count_from_where(table_name="credited_users", where=f"user_id = '{user_id}'") == 0
-        if not was_anonym:
-            DbManager.query_from_string(f"DELETE FROM credited_users WHERE user_id = ('{user_id}')")
-        return was_anonym
+        already_anonym = not MemeData.is_credited(user_id)
+        if not already_anonym:
+            DbManager.delete_from(table_name="credited_users", where="user_id = %s", where_args=(user_id, ))
+        return already_anonym
 
     @staticmethod
     def become_credited(user_id: int) -> bool:
@@ -294,10 +283,10 @@ class MemeData():
         Returns:
             bool: whether the user was already credited
         """
-        was_credited = DbManager.count_from_where(table_name="credited_users", where=f"user_id = '{user_id}'") == 1
-        if not was_credited:
-            DbManager.query_from_string(f"INSERT INTO credited_users (user_id) VALUES ('{user_id}')")
-        return was_credited
+        already_credited = MemeData.is_credited(user_id)
+        if not already_credited:
+            DbManager.insert_into(table_name="credited_users", columns=("user_id"), values=(user_id, ))
+        return already_credited
 
     @staticmethod
     def is_credited(user_id: int) -> bool:
@@ -309,4 +298,4 @@ class MemeData():
         Returns:
             bool: whether the user is to be credited or not
         """
-        return DbManager.count_from_where(table_name="credited_users", where=f"user_id = '{user_id}'") == 1
+        return DbManager.count_from(table_name="credited_users", where="user_id = %s", where_args=(user_id, )) == 1

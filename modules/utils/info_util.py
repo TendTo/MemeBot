@@ -1,5 +1,5 @@
 """Common info needed in both command and callback handlers"""
-from telegram import Update
+from telegram import Update, Message
 from telegram.ext import CallbackContext
 
 
@@ -42,3 +42,16 @@ def get_callback_info(update: Update, context: CallbackContext) -> dict:
         'sender_first_name': update.callback_query.from_user.first_name,
         'sender_id': update.callback_query.from_user.id
     }
+
+
+def check_message_type(message: Message) -> bool:
+    """Check that the type of the message is one of the ones supported
+
+    Args:
+        message (Message): message to check
+
+    Returns:
+        bool: whether its type is supported or not
+    """
+    return message.text or message.photo or message.voice or message.audio\
+    or message.video or message.animation or message.sticker

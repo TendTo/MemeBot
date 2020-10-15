@@ -45,10 +45,9 @@ debug:
 
 meme:
   channel_id: tag of your channel, @ included
-  enabled: whether the memebot is enabled
   group_id: id of the admin group the memebot will use
   n_votes: votes needed to approve/reject a pending post
-  reset_on_load: whether or not the database should reset every time the bot launches
+  reset_on_load: whether or not the database should reset every time the bot launches. USE CAREFULLY
 
 test:
   api_hash: hash of the telegram app used for testing
@@ -151,10 +150,6 @@ The workflow will fail if your repository lacks even one of the following secret
 
 ## :thought_balloon: Inspired by
 [Telegram-SpottedDMI-Bot](https://github.com/UNICT-DMI/Telegram-SpottedDMI-Bot)
-
-## :bust_in_silhouette: Author
-
-[Tend](https://github.com/TendTo)
 
 ## :balance_scale: License
 
