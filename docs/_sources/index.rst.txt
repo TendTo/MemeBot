@@ -1,0 +1,26 @@
+.. TelegramBot documentation master file, created by
+   sphinx-quickstart on Tue Sep  1 13:18:33 2020.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+DMI Insider newsgen bot's documentation
+===================================================
+You can find this bot live on telegram `@tendTo_bot <https://telegram.me/tendTo_bot>`_
+
+For the complete source code, check this `repo <https://github.com/TendTo/MemeBot>`_
+
+.. toctree::
+   :caption: Contents:
+
+   main
+   modules
+   tests
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
