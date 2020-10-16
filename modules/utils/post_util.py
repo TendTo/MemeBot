@@ -1,4 +1,5 @@
 """Modules that handles how the post shall be sent according to the chat (adming group or channel)"""
+import random
 from telegram import Message, Bot, InlineKeyboardMarkup
 from modules.data.data_reader import config_map
 from modules.data.meme_data import MemeData
@@ -96,7 +97,7 @@ def send_helper_message(user_id: int,
     Returns:
         Message: helper message
     """
-    sign = "anonimo"
+    sign = anonym_name()
     if MemeData.is_credited(user_id=user_id):  # the user wants to be credited
         username = bot.getChat(user_id).username
         if username:
@@ -106,3 +107,15 @@ def send_helper_message(user_id: int,
                             text=f"by: {sign}",
                             reply_markup=reply_markup,
                             reply_to_message_id=reply_message_id)
+
+
+def anonym_name() -> str:
+    """Generates a name for an anonym user
+
+        Returns:
+            str: a name among the ones proposed
+        """
+    names = ("anonimo", "ciccio", "tizio", "puzzola", "patato", "literally who", "mucro", "topolino", "cribbio", "signorina",
+             "pensione a Cuba", "aranciataLover", "hotlena", "darkangelcraft", "I PUFFI", "pippo", "my love", "?",
+             "signor nessuno", "V per Vedetta (ops)", "bonk", "foot", "cycle", "impostore", "spook", "gessetto impaurito")
+    return random.choice(names)
