@@ -13,6 +13,7 @@ Please note that the commands and their answers are in Italian.
 - **[:wrench: Setting up a local istance](#wrench-setting-up-a-local-istance)**
 - **[:whale: Setting up a Docker container](#whale-setting-up-a-docker-container)**
 - **[:bar_chart: _\[Optional\]_ Setting up testing](#bar_chart-optional-setting-up-testing)**
+- **[:books: Documentation](#books-documentation)**
 - **[:twisted_rightwards_arrows: About Pull Requests](#twisted_rightwards_arrows-about-pull-requests)**
 
 ---
@@ -136,6 +137,9 @@ test:
 #### Steps:
 - Add telethon, pytest and pytest-asyncio to the requirements.txt file
 - Access the container and **Run** `pytest` or edit the Dockerfile to do so
+
+## :books: Documentation
+[Link to the documentation](https://tendto.github.io/MemeBot/)
 
 ## :twisted_rightwards_arrows: About Pull Requests
 Upon submitting a Pull Request, a github action will be triggered. The workflow will run all the tests to make sure everything still works correctly
