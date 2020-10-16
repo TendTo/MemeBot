@@ -143,15 +143,17 @@ class MemeData():
             DbManager.insert_into(table_name="votes",
                                   columns=("user_id", "c_message_id", "channel_id", "is_upvote"),
                                   values=(user_id, c_message_id, channel_id, vote))
-            number_of_votes = MemeData.get_published_votes(c_message_id, channel_id, vote)
         elif bool(current_vote) != vote:  # the vote was different from the vote
             DbManager.query_from_string(f"UPDATE votes SET is_upvote = {vote}\
                                         WHERE user_id = '{user_id}'\
                                         and c_message_id = '{c_message_id}'\
                                         and channel_id = '{channel_id}'")
-            number_of_votes = MemeData.get_published_votes(c_message_id, channel_id, vote)
         else:
-            return -1
+            DbManager.delete_from(table_name="votes",
+                                  where="user_id = %s and c_message_id = %s and channel_id = %s",
+                                  where_args=(user_id, c_message_id, channel_id))
+
+        number_of_votes = MemeData.get_published_votes(c_message_id, channel_id, vote)
         return number_of_votes
 
     @staticmethod
@@ -241,7 +243,7 @@ class MemeData():
         Args:
             user_id (int): id of the user to ban
         """
-        DbManager.insert_into(table_name="banned_users", columns=("user_id",), values=(user_id, ))
+        DbManager.insert_into(table_name="banned_users", columns=("user_id", ), values=(user_id, ))
 
     @staticmethod
     def sban_user(user_id: int) -> bool:
@@ -285,7 +287,7 @@ class MemeData():
         """
         already_credited = MemeData.is_credited(user_id)
         if not already_credited:
-            DbManager.insert_into(table_name="credited_users", columns=("user_id",), values=(user_id, ))
+            DbManager.insert_into(table_name="credited_users", columns=("user_id", ), values=(user_id, ))
         return already_credited
 
     @staticmethod
