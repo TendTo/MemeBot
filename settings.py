@@ -73,6 +73,7 @@ try:
         config_map = yaml.load(yaml_file, Loader=yaml.SafeLoader)
 except FileNotFoundError as e:
     print(["[error] settings: " + str(e)])
+    sys.exit(2)
 
 for opt, arg in opts:
     if opt in ("-t", "--token"):  # set the new_token value (defaults to "")
@@ -130,8 +131,11 @@ else:
     if webhook_enabled and not web_url:
         print("If webhook is enabled, a web_url must be provided\nYou can disable it with -w false")
         sys.exit(2)
-    if not group_id or not channel_id or not channel_group_id:
-        print("A group_id, channel_id and channel_group_id must be provided")
+    if not group_id or not channel_id:
+        print("A group_id, channel_id must be provided")
+        sys.exit(2)
+    if config_map['meme']['comments'] and not channel_group_id:
+        print("If comments are enabled, a channel_group_id must be provided")
         sys.exit(2)
 
 try:

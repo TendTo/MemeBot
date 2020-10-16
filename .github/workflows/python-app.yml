@@ -28,7 +28,7 @@ jobs:
         run: |
           mv data/db/sqlite.db.dist data/db/sqlite.db
           mv config/settings.yaml.dist config/settings.yaml
-          python3 settings.py -t ${{secrets.TOKEN}} -d ${{secrets.DATABASE_URL}} -w false -g ${{secrets.GROUP_ID}} -c ${{secrets.CHANNEL_ID}} --test-api_id ${{secrets.API_ID}} --test-api_hash ${{secrets.API_HASH}} --test-session ${{secrets.SESSION}} --test-tag ${{secrets.TEST_TAG}} --test-token ${{secrets.TEST_TOKEN}}
+          python3 settings.py -t useless -d ${{secrets.DATABASE_URL}} -w false -g 1 -c 1 --channel_group 1 --test-api_id ${{secrets.API_ID}} --test-api_hash ${{secrets.API_HASH}} --test-session ${{secrets.SESSION}} --test-tag ${{secrets.TEST_TAG}} --test-token ${{secrets.TEST_TOKEN}}
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
