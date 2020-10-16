@@ -276,27 +276,6 @@ Saves the post as pending and sends it to the admins for them to check</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="modules.handlers.callback_handlers.send_post_to">
-<code class="sig-prename descclassname">modules.handlers.callback_handlers.</code><code class="sig-name descname">send_post_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="p">:</span> <span class="n">telegram.message.Message</span></em>, <em class="sig-param"><span class="n">bot</span><span class="p">:</span> <span class="n">telegram.bot.Bot</span></em>, <em class="sig-param"><span class="n">destination</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; telegram.message.Message<a class="headerlink" href="#modules.handlers.callback_handlers.send_post_to" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sends a message to the admins so that they can check the post before publishing it</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>message</strong> (<em>Message</em>) – message that contains the post to check</p></li>
-<li><p><strong>bot</strong> (<em>Bot</em>) – bot</p></li>
-<li><p><strong>destination</strong> (<em>str</em>) – destination of the message. admin OR channel</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>message sent to the admins</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Message</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt id="modules.handlers.callback_handlers.settings_anonimo_callback">
 <code class="sig-prename descclassname">modules.handlers.callback_handlers.</code><code class="sig-name descname">settings_anonimo_callback</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">update</span><span class="p">:</span> <span class="n">telegram.update.Update</span></em>, <em class="sig-param"><span class="n">context</span><span class="p">:</span> <span class="n">telegram.ext.callbackcontext.CallbackContext</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>str<span class="p">, </span>telegram.inline.inlinekeyboardmarkup.InlineKeyboardMarkup<span class="p">, </span>int<span class="p">]</span><a class="headerlink" href="#modules.handlers.callback_handlers.settings_anonimo_callback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handles the settings_sei_ghei callback
@@ -416,6 +395,21 @@ Exit from the post pipeline</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="modules.handlers.command_handlers.forwarded_post_msg">
+<code class="sig-prename descclassname">modules.handlers.command_handlers.</code><code class="sig-name descname">forwarded_post_msg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">update</span><span class="p">:</span> <span class="n">telegram.update.Update</span></em>, <em class="sig-param"><span class="n">context</span><span class="p">:</span> <span class="n">telegram.ext.callbackcontext.CallbackContext</span></em><span class="sig-paren">)</span><a class="headerlink" href="#modules.handlers.command_handlers.forwarded_post_msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the post forwarded in the channel group
+Sends a reply in the channel group and stores it in the database, so that the post can be voted</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>update</strong> (<em>Update</em>) – update event</p></li>
+<li><p><strong>context</strong> (<em>CallbackContext</em>) – context passed by the handler</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

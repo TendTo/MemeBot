@@ -92,6 +92,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">utils package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-modules.utils.info_util">info_util</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-modules.utils.keyboard_util">keyboard_util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-modules.utils.post_util">post_util</a></li>
 </ul>
 </li>
 </ul>
@@ -234,8 +235,36 @@
 <p>Creates the inlinekeyboard sent by the bot in its messages</p>
 <dl class="py function">
 <dt id="modules.utils.keyboard_util.get_approve_kb">
-<code class="sig-prename descclassname">modules.utils.keyboard_util.</code><code class="sig-name descname">get_approve_kb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">keyboard</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>telegram.inline.inlinekeyboardbutton.InlineKeyboardButton<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">g_message_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">group_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">approve</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">reject</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em><span class="sig-paren">)</span> &#x2192; telegram.inline.inlinekeyboardmarkup.InlineKeyboardMarkup<a class="headerlink" href="#modules.utils.keyboard_util.get_approve_kb" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates the new InlineKeyboard when the valutation of a pending post changes</p>
+<code class="sig-prename descclassname">modules.utils.keyboard_util.</code><code class="sig-name descname">get_approve_kb</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; telegram.inline.inlinekeyboardmarkup.InlineKeyboardMarkup<a class="headerlink" href="#modules.utils.keyboard_util.get_approve_kb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the InlineKeyboard for the pending post</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>new inline keyboard</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>InlineKeyboardMarkup</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="modules.utils.keyboard_util.get_vote_kb">
+<code class="sig-prename descclassname">modules.utils.keyboard_util.</code><code class="sig-name descname">get_vote_kb</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; telegram.inline.inlinekeyboardmarkup.InlineKeyboardMarkup<a class="headerlink" href="#modules.utils.keyboard_util.get_vote_kb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the InlineKeyboard for the published post</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>new inline keyboard</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>InlineKeyboardMarkup</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="modules.utils.keyboard_util.update_approve_kb">
+<code class="sig-prename descclassname">modules.utils.keyboard_util.</code><code class="sig-name descname">update_approve_kb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">keyboard</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>telegram.inline.inlinekeyboardbutton.InlineKeyboardButton<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">g_message_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">group_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">approve</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">reject</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em><span class="sig-paren">)</span> &#x2192; telegram.inline.inlinekeyboardmarkup.InlineKeyboardMarkup<a class="headerlink" href="#modules.utils.keyboard_util.update_approve_kb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the InlineKeyboard when the valutation of a pending post changes</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -256,9 +285,9 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="modules.utils.keyboard_util.get_vote_kb">
-<code class="sig-prename descclassname">modules.utils.keyboard_util.</code><code class="sig-name descname">get_vote_kb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">keyboard</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>telegram.inline.inlinekeyboardbutton.InlineKeyboardButton<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">c_message_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">channel_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">upvote</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">downvote</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em><span class="sig-paren">)</span> &#x2192; telegram.inline.inlinekeyboardmarkup.InlineKeyboardMarkup<a class="headerlink" href="#modules.utils.keyboard_util.get_vote_kb" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates the new InlineKeyboard when the valutation of a published post changes</p>
+<dt id="modules.utils.keyboard_util.update_vote_kb">
+<code class="sig-prename descclassname">modules.utils.keyboard_util.</code><code class="sig-name descname">update_vote_kb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">keyboard</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>telegram.inline.inlinekeyboardbutton.InlineKeyboardButton<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">c_message_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">channel_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">upvote</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">downvote</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em><span class="sig-paren">)</span> &#x2192; telegram.inline.inlinekeyboardmarkup.InlineKeyboardMarkup<a class="headerlink" href="#modules.utils.keyboard_util.update_vote_kb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the InlineKeyboard when the valutation of a published post changes</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -274,6 +303,72 @@
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>InlineKeyboardMarkup</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-modules.utils.post_util">
+<span id="post-util"></span><h2>post_util<a class="headerlink" href="#module-modules.utils.post_util" title="Permalink to this headline">¶</a></h2>
+<p>Modules that handles how the post shall be sent according to the chat (adming group or channel)</p>
+<dl class="py function">
+<dt id="modules.utils.post_util.anonym_name">
+<code class="sig-prename descclassname">modules.utils.post_util.</code><code class="sig-name descname">anonym_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#modules.utils.post_util.anonym_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a name for an anonym user</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a name among the ones proposed</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="modules.utils.post_util.send_helper_message">
+<code class="sig-prename descclassname">modules.utils.post_util.</code><code class="sig-name descname">send_helper_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">user_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">chat_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">reply_message_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">bot</span><span class="p">:</span> <span class="n">telegram.bot.Bot</span></em>, <em class="sig-param"><span class="n">reply_markup</span><span class="p">:</span> <span class="n">telegram.inline.inlinekeyboardmarkup.InlineKeyboardMarkup</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; telegram.message.Message<a class="headerlink" href="#modules.utils.post_util.send_helper_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends an helper message to show the author of the post, and to vote on the post if comments are enabled</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<em>int</em>) – id of the user that originated the post</p></li>
+<li><p><strong>chat_id</strong> (<em>int</em>) – id of the chat to which send the helper message</p></li>
+<li><p><strong>reply_message_id</strong> (<em>int</em>) – id of the message the helper message will reply to</p></li>
+<li><p><strong>bot</strong> (<em>Bot</em>) – bot</p></li>
+<li><p><strong>reply_markup</strong> (<em>InlineKeyboardMarkup</em><em>, </em><em>optional</em>) – voting Inline Keyboard. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>helper message</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Message</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="modules.utils.post_util.send_post_to">
+<code class="sig-prename descclassname">modules.utils.post_util.</code><code class="sig-name descname">send_post_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="p">:</span> <span class="n">telegram.message.Message</span></em>, <em class="sig-param"><span class="n">bot</span><span class="p">:</span> <span class="n">telegram.bot.Bot</span></em>, <em class="sig-param"><span class="n">destination</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">user_id</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; telegram.message.Message<a class="headerlink" href="#modules.utils.post_util.send_post_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends the post to the specified destination (see below)
+admin -&gt; to the admin group, so it can be approved
+channel -&gt; to the channel, so it can be ejoyed by the users (and voted, if comments are disabled)
+channel_group -&gt; to the group associated to the channel, so that users can vote the post (if comments are enabled)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<em>Message</em>) – message that contains the post to send</p></li>
+<li><p><strong>bot</strong> (<em>Bot</em>) – bot</p></li>
+<li><p><strong>destination</strong> (<em>str</em>) – destination of the message (admin, channel, channel_group)</p></li>
+<li><p><strong>user_id</strong> (<em>int</em><em>, </em><em>optional</em>) – id of the user that originated the post. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>message used to send a post to a specific destination</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Message</p>
 </dd>
 </dl>
 </dd></dl>
