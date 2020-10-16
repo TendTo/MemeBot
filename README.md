@@ -44,7 +44,9 @@ debug:
   local_log: /
 
 meme:
-  channel_id: tag of your channel, @ included
+  channel_group_id: id of the group associated with the channel. Needed if comments are enabled
+  channel_id: id of the channel to which the bot will send the approved memes
+  comments: whether or not the channel the bot will send the memes to has comments enabled
   group_id: id of the admin group the memebot will use
   n_votes: votes needed to approve/reject a pending post
   reset_on_load: whether or not the database should reset every time the bot launches. USE CAREFULLY
@@ -84,7 +86,8 @@ webhook:
 | **DATA_REMOTE=<data_remote>** | bool | whether the data will be saved remotely (postgres) or locally (mysql)<br>(false recommended for local) | OPTIONAL - defaults to false |
 | **DATABASE_URL=<db_url>** | string | url of your postgres database | REQUIRED IF<br>data_remote = true |
 | **GROUP_ID=<group_id>** | int | id of the admin group the memebot will use | REQUIRED |
-| **CHANNEL_ID=<channel_id>** | string | tag of your channel, @ included | REQUIRED |
+| **CHANNEL_ID=<channel_id>** | int | id of the channel to which the bot will send the approved memes  | REQUIRED |
+| **CHANNEL_GROUP_ID=<channel_id>** | int | id of the group associated with the channel | REQUIRED IF<br>comments = true |
 - **Run** `docker run -d --name botcontainer botimage`
 
 ### To stop/remove the container:

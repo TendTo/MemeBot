@@ -5,8 +5,10 @@ debug:
   db_log: false
   local_log: false
 meme:
-  channel_id: ''
-  group_id: ''
+  channel_group_id: 0
+  channel_id: 0
+  comments: true
+  group_id: 0
   n_votes: 1
   reset_on_load: false
 test:

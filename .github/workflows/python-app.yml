@@ -58,6 +58,7 @@ jobs:
             WEB_URL
             GROUP_ID
             CHANNEL_ID
+            CHANNEL_GROUP_ID
         env:
           TOKEN: ${{secrets.TOKEN}}
           DATA_REMOTE: 1
@@ -66,3 +67,4 @@ jobs:
           WEB_URL: ${{secrets.WEB_URL}}
           GROUP_ID: ${{secrets.GROUP_ID}}
           CHANNEL_ID: ${{secrets.CHANNEL_ID}}
+          CHANNEL_GROUP_ID: ${{secrets.CHANNEL_GROUP_ID}}

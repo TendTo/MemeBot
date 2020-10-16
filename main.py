@@ -12,7 +12,7 @@ from modules.debug.log_manager import log_message
 from modules.data.data_reader import config_map
 # commands
 from modules.handlers.command_handlers import STATE, start_cmd, help_cmd, settings_cmd, post_cmd, ban_cmd, reply_cmd,\
-    post_msg, rules_cmd, sban_cmd, cancel_cmd
+    post_msg, rules_cmd, sban_cmd, cancel_cmd, forwarded_post_msg
 from modules.handlers.callback_handlers import meme_callback
 # endregion
 
@@ -60,6 +60,9 @@ def add_handlers(dp: Dispatcher):
 
     # Callback handlers
     dp.add_handler(CallbackQueryHandler(meme_callback, pattern=r"^meme_\.*"))
+
+    if config_map['meme']['comments']:
+        dp.add_handler(MessageHandler(Filters.forwarded, forwarded_post_msg))
 
 
 def main():

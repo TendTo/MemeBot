@@ -13,6 +13,7 @@ HELP = "settings.py -t <token>\n\n"\
             "-u --url [web_url]             set the webhook:url variable\n\n"\
             "-g --group [group_id]          set the meme:group_id variable\n"\
             "-c --channel [channel_id]      set the meme:channel_id variable\n\n"\
+            "--channel_group [group_id]     set the meme:channel_group_id variable\n"\
             "--test-api_id                  set the test:api_id variable (needed for testing)\n"\
             "--test-api_hash                set the test:api_hash variable (needed for testing)\n"\
             "--test-session                 set the test:session variable (needed for testing)\n"\
@@ -27,7 +28,8 @@ url_database = ""
 webhook_enabled = True
 web_url = ""
 group_id = 0
-channel_id = ""
+channel_id = 0
+channel_group_id = 0
 test_api_id = 0
 test_api_hash = ""
 test_session = ""
@@ -47,6 +49,7 @@ try:
         "group=",
         "url=",
         "channel=",
+        "channel_group=",
         "remote=",
         "test-api_id=",
         "test-api_hash=",
@@ -82,6 +85,8 @@ for opt, arg in opts:
         group_id = arg if arg != "none" else ""
     elif opt in ("-c", "--channel"):  # set the group_id value to false...
         channel_id = arg if arg != "none" else ""
+    elif opt == "--channel_group":  # set the group_id value to false...
+        channel_group_id = arg if arg != "none" else ""
     elif opt in ("-l", "--remote"):  # set the is_remote value to false...
         if arg.lower() in FALSE:  # if the parameter is in this list
             is_remote = False
@@ -107,7 +112,8 @@ for opt, arg in opts:
         webhook_enabled = True
         web_url = ""
         group_id = 0
-        channel_id = ""
+        channel_id = 0
+        channel_group_id = 0
         test_api_id = 0
         test_api_hash = ""
         test_session = ""
@@ -124,14 +130,24 @@ else:
     if webhook_enabled and not web_url:
         print("If webhook is enabled, a web_url must be provided\nYou can disable it with -w false")
         sys.exit(2)
-    if (not group_id or not channel_id):
-        print("A group_id and channel_id must be provided")
+    if not group_id or not channel_id or not channel_group_id:
+        print("A group_id, channel_id and channel_group_id must be provided")
         sys.exit(2)
 
 try:
     group_id = int(group_id)
 except ValueError:
     print("[error] group_id must be an integer\n")
+    sys.exit(2)
+try:
+    channel_id = int(channel_id)
+except ValueError:
+    print("[error] channel_id must be an integer\n")
+    sys.exit(2)
+try:
+    channel_group_id = int(channel_group_id)
+except ValueError:
+    print("[error] channel_group_id must be an integer\n")
     sys.exit(2)
 try:
     test_api_id = int(test_api_id)
@@ -146,6 +162,7 @@ config_map['webhook']['enabled'] = webhook_enabled
 config_map['webhook']['url'] = web_url
 config_map['meme']['group_id'] = group_id
 config_map['meme']['channel_id'] = channel_id
+config_map['meme']['channel_group_id'] = channel_group_id
 config_map['test']['api_id'] = test_api_id
 config_map['test']['api_hash'] = test_api_hash
 config_map['test']['session'] = test_session
