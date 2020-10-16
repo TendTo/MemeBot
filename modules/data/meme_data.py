@@ -241,7 +241,7 @@ class MemeData():
         Args:
             user_id (int): id of the user to ban
         """
-        DbManager.insert_into(table_name="banned_users", columns=("user_id"), values=(user_id, ))
+        DbManager.insert_into(table_name="banned_users", columns=("user_id",), values=(user_id, ))
 
     @staticmethod
     def sban_user(user_id: int) -> bool:
@@ -285,7 +285,7 @@ class MemeData():
         """
         already_credited = MemeData.is_credited(user_id)
         if not already_credited:
-            DbManager.insert_into(table_name="credited_users", columns=("user_id"), values=(user_id, ))
+            DbManager.insert_into(table_name="credited_users", columns=("user_id",), values=(user_id, ))
         return already_credited
 
     @staticmethod

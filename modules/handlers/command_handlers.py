@@ -1,9 +1,10 @@
 """Commands for the meme bot"""
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, ForceReply
 from telegram.ext import CallbackContext
-from modules.utils.info_util import get_message_info, check_message_type
 from modules.data.data_reader import read_md, config_map
 from modules.data.meme_data import MemeData
+from modules.utils.info_util import get_message_info, check_message_type
+from modules.utils.post_util import send_post_to
 
 STATE = {'posting': 1, 'confirm': 2, 'end': -1}
 
@@ -235,6 +236,24 @@ def post_msg(update: Update, context: CallbackContext) -> int:
                                  InlineKeyboardButton(text="No", callback_data="meme_confirm_no")
                              ]]))
     return STATE['confirm']
+
+
+def forwarded_post_msg(update: Update, context: CallbackContext):
+    """Handles the post forwarded in the channel group
+    Sends a reply in the channel group and stores it in the database, so that the post can be voted
+
+    Args:
+        update (Update): update event
+        context (CallbackContext): context passed by the handler
+    """
+    info = get_message_info(update, context)
+    forward_from_chat_id = update.message.forward_from_chat.id
+    forward_from_id = update.message.forward_from_message_id
+
+    if info['chat_id'] == config_map['meme']['channel_group_id'] and forward_from_chat_id == config_map['meme']['channel_id']:
+        user_id = context.bot_data[f"{forward_from_chat_id},{forward_from_id}"]
+        send_post_to(message=update.message, bot=info['bot'], destination="channel_group", user_id=user_id)
+        del context.bot_data[f"{forward_from_chat_id},{forward_from_id}"]
 
 
 # endregion

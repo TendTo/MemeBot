@@ -4,12 +4,36 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from modules.data.meme_data import MemeData
 
 
-def get_approve_kb(keyboard: List[List[InlineKeyboardButton]],
-                         g_message_id: int,
-                         group_id: int,
-                         approve: int = -1,
-                         reject: int = -1) -> InlineKeyboardMarkup:
-    """Updates the new InlineKeyboard when the valutation of a pending post changes
+def get_approve_kb() -> InlineKeyboardMarkup:
+    """Generates the InlineKeyboard for the pending post
+
+    Returns:
+        InlineKeyboardMarkup: new inline keyboard
+    """
+    return InlineKeyboardMarkup([[
+        InlineKeyboardButton("🟢 0", callback_data="meme_approve_yes"),
+        InlineKeyboardButton("🔴 0", callback_data="meme_approve_no")
+    ]])
+
+
+def get_vote_kb() -> InlineKeyboardMarkup:
+    """Generates the InlineKeyboard for the published post
+
+    Returns:
+        InlineKeyboardMarkup: new inline keyboard
+    """
+    return InlineKeyboardMarkup([[
+        InlineKeyboardButton("👍 0", callback_data="meme_vote_yes"),
+        InlineKeyboardButton("👎 0", callback_data="meme_vote_no")
+    ]])
+
+
+def update_approve_kb(keyboard: List[List[InlineKeyboardButton]],
+                      g_message_id: int,
+                      group_id: int,
+                      approve: int = -1,
+                      reject: int = -1) -> InlineKeyboardMarkup:
+    """Updates the InlineKeyboard when the valutation of a pending post changes
 
     Args:
         keyboard (List[List[InlineKeyboardButton]]): previous keyboard
@@ -32,12 +56,12 @@ def get_approve_kb(keyboard: List[List[InlineKeyboardButton]],
     return InlineKeyboardMarkup(keyboard)
 
 
-def get_vote_kb(keyboard: List[List[InlineKeyboardButton]],
-                      c_message_id: int,
-                      channel_id: int,
-                      upvote: int = -1,
-                      downvote: int = -1) -> InlineKeyboardMarkup:
-    """Updates the new InlineKeyboard when the valutation of a published post changes
+def update_vote_kb(keyboard: List[List[InlineKeyboardButton]],
+                   c_message_id: int,
+                   channel_id: int,
+                   upvote: int = -1,
+                   downvote: int = -1) -> InlineKeyboardMarkup:
+    """Updates the InlineKeyboard when the valutation of a published post changes
 
     Args:
         keyboard (List[List[InlineKeyboardButton]]): previous keyboard

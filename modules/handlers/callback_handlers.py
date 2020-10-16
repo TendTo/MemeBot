@@ -1,11 +1,12 @@
 """Commands for the meme bot"""
 from typing import Tuple
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, Message, Bot
+from telegram import Update, InlineKeyboardMarkup, ParseMode
 from telegram.ext import CallbackContext
 from modules.data.data_reader import config_map
 from modules.data.meme_data import MemeData
 from modules.utils.info_util import get_callback_info
-from modules.utils.keyboard_util import get_approve_kb, get_vote_kb
+from modules.utils.keyboard_util import update_approve_kb, update_vote_kb
+from modules.utils.post_util import send_post_to
 
 STATE = {'posting': 1, 'confirm': 2, 'end': -1}
 
@@ -59,7 +60,6 @@ def confirm_yes_callback(update: Update, context: CallbackContext) -> Tuple[str,
     user_message = update.callback_query.message.reply_to_message
     admin_message = send_post_to(message=user_message, bot=info['bot'], destination="admin")
     if admin_message:
-        MemeData.insert_pending_post(user_message, admin_message)
         text = "Il tuo post è in fase di valutazione\n"\
             f"Una volta pubblicato, lo potrai trovare sul [canale]({config_map['meme']['channel_id']})"
     else:
@@ -151,21 +151,20 @@ def approve_yes_callback(update: Update, context: CallbackContext) -> Tuple[str,
     if n_approve >= config_map['meme']['n_votes']:
         message = update.callback_query.message
         user_id = MemeData.get_user_id(g_message_id=info['message_id'], group_id=info['chat_id'])
-        if MemeData.is_credited(user_id=user_id):  # the user wants to be credited
-            username = info['bot'].getChat(user_id).username
-            if username:
-                info['bot'].send_message(chat_id=config_map['meme']['channel_id'], text=f"CREDIT: @{username}")
+        published_post = send_post_to(message=message, bot=info['bot'], destination="channel")
 
-        channel_message = send_post_to(message, info['bot'], "channel")
-        MemeData.insert_published_post(channel_message=channel_message)
-        info['bot'].send_message(chat_id=user_id, text="Il tuo ultimo post è stato approvato")
+        if config_map['meme']['comments']:  # if comments are enabled, save the user_id, so the user can be credited
+            context.bot_data[f"{published_post.chat_id},{published_post.message_id}"] = user_id
 
-        info['bot'].delete_message(chat_id=info['chat_id'], message_id=info['message_id'])
+        info['bot'].send_message(chat_id=user_id, text="Il tuo ultimo post è stato approvato")  # notify the user
+
+        info['bot'].delete_message(chat_id=info['chat_id'], message_id=info['message_id'])  # clean the post
         MemeData.remove_pending_meme(info['message_id'], info['chat_id'])
         return None, None, None
+
     if n_approve != -1:  # the vote changed
         keyboard = update.callback_query.message.reply_markup.inline_keyboard
-        return None, get_approve_kb(keyboard, info['message_id'], info['chat_id'], approve=n_approve), None
+        return None, update_approve_kb(keyboard, info['message_id'], info['chat_id'], approve=n_approve), None
 
     return None, None, None
 
@@ -185,6 +184,7 @@ def approve_no_callback(update: Update, context: CallbackContext) -> Tuple[str, 
     info = get_callback_info(update, context)
     n_reject = MemeData.set_admin_vote(info['sender_id'], info['message_id'], info['chat_id'], False)
 
+    # The post has been refused
     if n_reject >= config_map['meme']['n_votes']:
         info['bot'].delete_message(chat_id=info['chat_id'], message_id=info['message_id'])
         user_id = MemeData.get_user_id(g_message_id=info['message_id'], group_id=info['chat_id'])
@@ -192,9 +192,10 @@ def approve_no_callback(update: Update, context: CallbackContext) -> Tuple[str, 
                                  text="Il tuo ultimo post è stato rifiutato\nPuoi controllare le regole con /rules")
         MemeData.remove_pending_meme(info['message_id'], info['chat_id'])
         return None, None, None
+
     if n_reject != -1:  # the vote changed
         keyboard = update.callback_query.message.reply_markup.inline_keyboard
-        return None, get_approve_kb(keyboard, info['message_id'], info['chat_id'], reject=n_reject), None
+        return None, update_approve_kb(keyboard, info['message_id'], info['chat_id'], reject=n_reject), None
 
     return None, None, None
 
@@ -218,7 +219,7 @@ def vote_yes_callback(update: Update, context: CallbackContext) -> Tuple[str, In
 
     if n_upvotes != -1:  # the vote changed
         keyboard = update.callback_query.message.reply_markup.inline_keyboard
-        return None, get_vote_kb(keyboard, info['message_id'], info['chat_id'], upvote=n_upvotes), None
+        return None, update_vote_kb(keyboard, info['message_id'], info['chat_id'], upvote=n_upvotes), None
 
     return None, None, None
 
@@ -242,62 +243,9 @@ def vote_no_callback(update: Update, context: CallbackContext) -> Tuple[str, Inl
 
     if n_downvotes != -1:  # the vote changed
         keyboard = update.callback_query.message.reply_markup.inline_keyboard
-        return None, get_vote_kb(keyboard, info['message_id'], info['chat_id'], downvote=n_downvotes), None
+        return None, update_vote_kb(keyboard, info['message_id'], info['chat_id'], downvote=n_downvotes), None
 
     return None, None, None
 
 
 # endregion
-
-
-def send_post_to(message: Message, bot: Bot, destination: str) -> Message:
-    """Sends a message to the admins so that they can check the post before publishing it
-
-    Args:
-        message (Message): message that contains the post to check
-        bot (Bot): bot
-        destination (str): destination of the message. admin OR channel
-
-    Returns:
-        Message: message sent to the admins
-    """
-    text = message.text
-    photo = message.photo
-    voice = message.voice
-    audio = message.audio
-    video = message.video
-    animation = message.animation
-    sticker = message.sticker
-    caption = message.caption
-
-    if destination == "admin":
-        chat_id = config_map['meme']['group_id']
-        reply_markup = InlineKeyboardMarkup([[
-            InlineKeyboardButton("🟢 0", callback_data="meme_approve_yes"),
-            InlineKeyboardButton("🔴 0", callback_data="meme_approve_no")
-        ]])
-    elif destination == "channel":
-        chat_id = config_map['meme']['channel_id']
-        reply_markup = InlineKeyboardMarkup([[
-            InlineKeyboardButton("👍 0", callback_data="meme_vote_yes"),
-            InlineKeyboardButton("👎 0", callback_data="meme_vote_no")
-        ]])
-    else:
-        print("[error] send_message_to: unvalid destination")
-        return None
-
-    if text:
-        return bot.sendMessage(chat_id=chat_id, text=text, reply_markup=reply_markup)
-    if photo:
-        return bot.sendPhoto(chat_id=chat_id, photo=photo[-1], caption=caption, reply_markup=reply_markup)
-    if voice:
-        return bot.sendVoice(chat_id=chat_id, voice=voice, reply_markup=reply_markup)
-    if audio:
-        return bot.sendAudio(chat_id=chat_id, audio=audio, reply_markup=reply_markup)
-    if video:
-        return bot.sendVideo(chat_id=chat_id, video=video, caption=caption, reply_markup=reply_markup)
-    if animation:
-        return bot.sendAnimation(chat_id=chat_id, animation=animation, reply_markup=reply_markup)
-    if sticker:
-        return bot.sendSticker(chat_id=chat_id, sticker=sticker, reply_markup=reply_markup)
-    return None
