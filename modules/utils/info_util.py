@@ -4,7 +4,7 @@ from telegram.ext import CallbackContext
 
 
 def get_message_info(update: Update, context: CallbackContext) -> dict:
-    """Get the classic info from the update and context parameters
+    """Get the classic info from the update and context parameters for commands and messages
 
     Args:
         update (Update): update event
@@ -31,12 +31,13 @@ def get_callback_info(update: Update, context: CallbackContext) -> dict:
         context (CallbackContext): context passed by the handler
 
     Returns:
-        dict: {bot, chat_id, text, data, message_id, sender_first_name, sender_id}
+        dict: {bot, chat_id, text, query_id, data, message_id, sender_first_name, sender_id}
     """
     return {
         'bot': context.bot,
         'chat_id': update.callback_query.message.chat_id,
         'text': update.callback_query.message.text,
+        'query_id': update.callback_query.id,
         'data': update.callback_query.data,
         'message_id': update.callback_query.message.message_id,
         'sender_first_name': update.callback_query.from_user.first_name,

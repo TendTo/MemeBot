@@ -212,12 +212,16 @@ def vote_yes_callback(update: Update, context: CallbackContext) -> Tuple[str, In
         Tuple[str, InlineKeyboardMarkup, int]: text and replyMarkup that make up the reply, new conversation state
     """
     info = get_callback_info(update, context)
-    n_upvotes = MemeData.set_user_vote(user_id=info['sender_id'],
+    n_upvotes, was_added = MemeData.set_user_vote(user_id=info['sender_id'],
                                        c_message_id=info['message_id'],
                                        channel_id=info['chat_id'],
                                        vote=True)
 
     if n_upvotes != -1:  # the vote changed
+        if was_added:
+            info['bot'].answerCallbackQuery(callback_query_id=info['query_id'], text="Hai messo un 👍")
+        else:
+            info['bot'].answerCallbackQuery(callback_query_id=info['query_id'], text="Hai tolto il 👍")
         keyboard = update.callback_query.message.reply_markup.inline_keyboard
         return None, update_vote_kb(keyboard, info['message_id'], info['chat_id'], upvote=n_upvotes), None
 
@@ -236,12 +240,16 @@ def vote_no_callback(update: Update, context: CallbackContext) -> Tuple[str, Inl
         Tuple[str, InlineKeyboardMarkup, int]: text and replyMarkup that make up the reply, new conversation state
     """
     info = get_callback_info(update, context)
-    n_downvotes = MemeData.set_user_vote(user_id=info['sender_id'],
+    n_downvotes, was_added = MemeData.set_user_vote(user_id=info['sender_id'],
                                          c_message_id=info['message_id'],
                                          channel_id=info['chat_id'],
                                          vote=False)
 
     if n_downvotes != -1:  # the vote changed
+        if was_added:
+            info['bot'].answerCallbackQuery(callback_query_id=info['query_id'], text="Hai messo un 👎")
+        else:
+            info['bot'].answerCallbackQuery(callback_query_id=info['query_id'], text="Hai tolto il 👎")
         keyboard = update.callback_query.message.reply_markup.inline_keyboard
         return None, update_vote_kb(keyboard, info['message_id'], info['chat_id'], downvote=n_downvotes), None
 

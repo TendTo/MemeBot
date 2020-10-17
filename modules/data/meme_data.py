@@ -1,5 +1,5 @@
 """Data management for the meme bot"""
-from typing import Optional
+from typing import Optional, Tuple
 from telegram import Message
 from modules.data.db_manager import DbManager
 from modules.data.data_reader import config_map
@@ -78,8 +78,8 @@ class MemeData():
 
         if len(vote) == 0:  # the vote is not present
             return None
-        else:
-            return vote[0]['is_upvote']
+
+        return vote[0]['is_upvote']
 
     @staticmethod
     def get_pending_votes(g_message_id: int, group_id: int, vote: bool) -> int:
@@ -126,7 +126,7 @@ class MemeData():
                               values=(channel_id, c_message_id))
 
     @staticmethod
-    def set_user_vote(user_id: int, c_message_id: int, channel_id: int, vote: bool) -> int:
+    def set_user_vote(user_id: int, c_message_id: int, channel_id: int, vote: bool) -> Tuple[int, bool]:
         """Adds the vote of the user on a specific post, or update the existing vote, if needed
 
         Args:
@@ -136,25 +136,28 @@ class MemeData():
             vote (bool): whether it is an upvote or a downvote
 
         Returns:
-            int: number of similar votes (all the upvotes or the downvotes), or -1 if the vote wasn't updated
+            Tuple[int, bool]: number of similar votes (all the upvotes or the downvotes), or -1 if the vote wasn't updated, \
+                whether or not the vote was added or removed
         """
         current_vote = MemeData.get_user_vote(user_id, c_message_id, channel_id)
+        vote_added = True
         if current_vote is None:  # there isn't a vote yet
             DbManager.insert_into(table_name="votes",
                                   columns=("user_id", "c_message_id", "channel_id", "is_upvote"),
                                   values=(user_id, c_message_id, channel_id, vote))
-        elif bool(current_vote) != vote:  # the vote was different from the vote
+        elif bool(current_vote) != vote:  # the old vote was different from the new vote
             DbManager.query_from_string(f"UPDATE votes SET is_upvote = {vote}\
                                         WHERE user_id = '{user_id}'\
                                         and c_message_id = '{c_message_id}'\
                                         and channel_id = '{channel_id}'")
-        else:
+        else:  # the user wants to remove his vote
             DbManager.delete_from(table_name="votes",
                                   where="user_id = %s and c_message_id = %s and channel_id = %s",
                                   where_args=(user_id, c_message_id, channel_id))
+            vote_added = False
 
         number_of_votes = MemeData.get_published_votes(c_message_id, channel_id, vote)
-        return number_of_votes
+        return number_of_votes, vote_added
 
     @staticmethod
     def get_user_vote(user_id: int, c_message_id: int, channel_id: int) -> Optional[bool]:
