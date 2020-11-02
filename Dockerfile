@@ -1,9 +1,7 @@
 FROM python:3.8.5-slim-buster
 
 ARG TOKEN=none
-ARG DATA_REMOTE=false
 ARG DATABASE_URL=none
-ARG WEBHOOK_ENABLED=false
 ARG WEB_URL=none
 ARG GROUP_ID=none
 ARG CHANNEL_ID=none
@@ -21,7 +19,7 @@ COPY . .
 #Setup settings and databases
 RUN mv data/db/sqlite.db.dist data/db/sqlite.db &&\
   mv config/settings.yaml.dist config/settings.yaml &&\
-  python3 settings.py -t ${TOKEN} -l ${DATA_REMOTE} -d ${DATABASE_URL} -w ${WEBHOOK_ENABLED} -u ${WEB_URL} -g ${GROUP_ID} -c ${CHANNEL_ID} --channel_group ${CHANNEL_GROUP_ID}
+  python3 settings.py ${TOKEN} ${GROUP_ID} ${CHANNEL_ID} ${CHANNEL_GROUP_ID} -r -d ${DATABASE_URL} -w -u ${WEB_URL}
 
 #Cleanup
 RUN rm settings.py &&\

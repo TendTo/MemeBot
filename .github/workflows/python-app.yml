@@ -5,9 +5,9 @@ name: tendTo_bot_deploy
 
 on:
   push:
-    branches: [master]
+    branches: [test]
   pull_request:
-    branches: [master]
+    branches: [test]
 
 jobs:
   build:
@@ -28,7 +28,7 @@ jobs:
         run: |
           mv data/db/sqlite.db.dist data/db/sqlite.db
           mv config/settings.yaml.dist config/settings.yaml
-          python3 settings.py -t useless -d ${{secrets.DATABASE_URL}} -w false -g 1 -c 1 --channel_group 1 --test-api_id ${{secrets.API_ID}} --test-api_hash ${{secrets.API_HASH}} --test-session ${{secrets.SESSION}} --test-tag ${{secrets.TEST_TAG}} --test-token ${{secrets.TEST_TOKEN}}
+          python3 settings.py uselessToken 1 2 3 -d ${{secrets.DATABASE_URL}} --test-api_id ${{secrets.API_ID}} --test-api_hash ${{secrets.API_HASH}} --test-session ${{secrets.SESSION}} --test-tag ${{secrets.TEST_TAG}} --test-token ${{secrets.TEST_TOKEN}}
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
@@ -52,18 +52,14 @@ jobs:
           usedocker: true
           docker_build_args: |
             TOKEN
-            DATA_REMOTE
             DATABASE_URL
-            WEBHOOK_ENABLED
             WEB_URL
             GROUP_ID
             CHANNEL_ID
             CHANNEL_GROUP_ID
         env:
           TOKEN: ${{secrets.TOKEN}}
-          DATA_REMOTE: 1
           DATABASE_URL: ${{secrets.DATABASE_URL}}
-          WEBHOOK_ENABLED: 1
           WEB_URL: ${{secrets.WEB_URL}}
           GROUP_ID: ${{secrets.GROUP_ID}}
           CHANNEL_ID: ${{secrets.CHANNEL_ID}}

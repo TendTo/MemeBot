@@ -1,177 +1,86 @@
-"""Used to set secret variables, like the token"""
+"""Used to set secret variables, like the token, in the config/settings.yaml file"""
 import sys
-import getopt
+import argparse
 import yaml
 
-FALSE = ("false", "no", "disable", "falso", "f", "n", "0", "-1")
 
-HELP = "settings.py -t <token>\n\n"\
-            "-t --token <token>             set the token variable\n\n"\
-            "-l --remote [enable_remote]    set the data:remote variable\n"\
-            "-d --database <database_url>   set the data:db_url variable\n\n"\
-            "-w --webhook [enable_webhook]  set the webhook:enabled variable (defaults to true)\n"\
-            "-u --url [web_url]             set the webhook:url variable\n\n"\
-            "-g --group [group_id]          set the meme:group_id variable\n"\
-            "-c --channel [channel_id]      set the meme:channel_id variable\n\n"\
-            "--channel_group [group_id]     set the meme:channel_group_id variable\n"\
-            "--test-api_id                  set the test:api_id variable (needed for testing)\n"\
-            "--test-api_hash                set the test:api_hash variable (needed for testing)\n"\
-            "--test-session                 set the test:session variable (needed for testing)\n"\
-            "--test-tag                     set the test:tag variable (needed for testing)\n"\
-            "--test-token                   set the test:token variable (needed for testing)\n\n"\
-            "-p --path [settings_path]      set the path of the setting file (defaults to config/settings.yaml)\n" \
-            "-r --revert                    set token and db_url to \"\" and enable_webhook to true"
+def create_argparser() -> argparse.ArgumentParser:
+    """Generates the appropriate argparser
 
-new_token = ""
-is_remote = True
-url_database = ""
-webhook_enabled = True
-web_url = ""
-group_id = 0
-channel_id = 0
-channel_group_id = 0
-test_api_id = 0
-test_api_hash = ""
-test_session = ""
-test_tag = ""
-test_token = ""
-settings_path = "config/settings.yaml"
+    Returns:
+        argparse.ArgumentParser: the argparser used to parse the arguments
+    """
+    parser = argparse.ArgumentParser(description="Settings utility to edit the config/settings.yaml file", allow_abbrev=True)
+    parser.add_argument('token', help="the token of your telegram bot")
+    parser.add_argument('group_id', type=int, help="chat id of the group used by the admins")
+    parser.add_argument('channel_id', type=int, help="chat id of the channel the bot will post to")
+    parser.add_argument('channel_group_id', type=int, help="chat id of the group that will host the channel's comments")
 
-try:
-    # get a list of argv with the related option flag
-    opts, args = getopt.getopt(sys.argv[1:], "rht:d:p:w:g:u:c:l:", [
-        "help",
-        "revert",
-        "token=",
-        "database=",
-        "path=",
-        "webhook=",
-        "group=",
-        "url=",
-        "channel=",
-        "channel_group=",
-        "remote=",
-        "test-api_id=",
-        "test-api_hash=",
-        "test-session=",
-        "test-tag=",
-        "test-token=",
-    ])
-except getopt.GetoptError:
-    print(HELP)
-    sys.exit(2)
+    # Used to deploy to Heroku
+    parser.add_argument('-r', '--remote', help="enable the remote database", action='store_true', default=False)
+    parser.add_argument('-d', '--database', help="the access point to the remote database (required if -r)")
+    parser.add_argument('-w', '--webhook', help="enable the webhook", action='store_true', default=False)
+    parser.add_argument('-u', '--urlwebhook', help="the url used by the webhook (required if -w)")
 
-for opt, arg in opts:
-    if opt in ("-h", "--help"):  # show the help prompt
-        print(HELP)
-        sys.exit()
-    elif opt in ("-p", "--path"):  # set the settings_path value (defaults to config/settings.yaml)
-        settings_path = arg
+    # Used for testing
+    parser.add_argument('--test_api_hash', help="hash of the telegram app used for testing")
+    parser.add_argument('--test_api_id', type=int, help="id of the telegram app used for testing")
+    parser.add_argument('--test_session', help="session of the telegram app used for testing")
+    parser.add_argument('--test_tag', help="tag of the telegram bot used for testing. Include the '@' character")
+    parser.add_argument('--test_token', help="token for the telegram bot used for testing")
 
-try:
-    with open(settings_path, "r") as yaml_file:
-        config_map = yaml.load(yaml_file, Loader=yaml.SafeLoader)
-except FileNotFoundError as e:
-    print(["[error] settings: " + str(e)])
-    sys.exit(2)
+    # Other
+    parser.add_argument('-p', '--path', help="path of the setting file (default: %(default)s)", default="config/settings.yaml")
+    return parser
 
-for opt, arg in opts:
-    if opt in ("-t", "--token"):  # set the new_token value (defaults to "")
-        new_token = arg if arg != "none" else ""
-    elif opt in ("-d", "--database"):  # set url_database value (defaults to "")
-        url_database = arg if arg != "none" else ""
-    elif opt in ("-u", "--url"):  # set the group_id value to false...
-        web_url = arg if arg != "none" else ""
-    elif opt in ("-g", "--group"):  # set the group_id value to false...
-        group_id = arg if arg != "none" else ""
-    elif opt in ("-c", "--channel"):  # set the group_id value to false...
-        channel_id = arg if arg != "none" else ""
-    elif opt == "--channel_group":  # set the group_id value to false...
-        channel_group_id = arg if arg != "none" else ""
-    elif opt in ("-l", "--remote"):  # set the is_remote value to false...
-        if arg.lower() in FALSE:  # if the parameter is in this list
-            is_remote = False
-    elif opt in ("-w", "--webhook"):  # set the webhook_enabled value to false...
-        if arg.lower() in FALSE:  # if the parameter is in this list
-            webhook_enabled = False
-    elif opt == "--test-api_id":
-        test_api_id = arg
-    elif opt == "--test-api_hash":
-        test_api_hash = arg
-    elif opt == "--test-api_id":
-        test_api_id = arg
-    elif opt == "--test-session":
-        test_session = arg
-    elif opt == "--test-tag":
-        test_tag = arg
-    elif opt == "--test-token":
-        test_token = arg
-    elif opt in ("-r", "--revert"):  # reset all values to their default
-        new_token = ""
-        is_remote = False
-        url_database = ""
-        webhook_enabled = True
-        web_url = ""
-        group_id = 0
-        channel_id = 0
-        channel_group_id = 0
-        test_api_id = 0
-        test_api_hash = ""
-        test_session = ""
-        test_tag = ""
-        test_token = ""
-        break
-else:
-    if not new_token:
-        print("A token must provided with -t token")
+
+def check_args(args: dict):
+    """Makes sure combination of args passed is valid
+
+    Args:
+        args (dict): the args passed by the user
+    """
+    if args['webhook'] and not args['urlwebhook']:
+        print("If webhook is enabled, an urlwebhook must be provided")
         sys.exit(2)
-    if is_remote and not url_database:
-        print("If remote is enabled, a database_url must be provided\nYou can disable it with -l false")
-        sys.exit(2)
-    if webhook_enabled and not web_url:
-        print("If webhook is enabled, a web_url must be provided\nYou can disable it with -w false")
-        sys.exit(2)
-    if not group_id or not channel_id:
-        print("A group_id, channel_id must be provided")
-        sys.exit(2)
-    if config_map['meme']['comments'] and not channel_group_id:
-        print("If comments are enabled, a channel_group_id must be provided")
+    if args['remote'] and not args['database']:
+        print("If remote is enabled, an access point to the database must be provided")
         sys.exit(2)
 
-try:
-    group_id = int(group_id)
-except ValueError:
-    print("[error] group_id must be an integer\n")
-    sys.exit(2)
-try:
-    channel_id = int(channel_id)
-except ValueError:
-    print("[error] channel_id must be an integer\n")
-    sys.exit(2)
-try:
-    channel_group_id = int(channel_group_id)
-except ValueError:
-    print("[error] channel_group_id must be an integer\n")
-    sys.exit(2)
-try:
-    test_api_id = int(test_api_id)
-except ValueError:
-    print("[error] test_api_id must be an integer")
-    sys.exit(2)
+def main():
+    """Main function
+    """
+    parser = create_argparser()
+    args = vars(parser.parse_args())
+    check_args(args)
 
-config_map['token'] = new_token
-config_map['data']['remote'] = is_remote
-config_map['data']['db_url'] = url_database
-config_map['webhook']['enabled'] = webhook_enabled
-config_map['webhook']['url'] = web_url
-config_map['meme']['group_id'] = group_id
-config_map['meme']['channel_id'] = channel_id
-config_map['meme']['channel_group_id'] = channel_group_id
-config_map['test']['api_id'] = test_api_id
-config_map['test']['api_hash'] = test_api_hash
-config_map['test']['session'] = test_session
-config_map['test']['tag'] = test_tag
-config_map['test']['token'] = test_token
+    try:
+        with open(args['path'], "r") as yaml_file:
+            config_map = yaml.safe_load(yaml_file)
+    except FileNotFoundError as e:
+        print(e)
+        sys.exit(2)
 
-with open(settings_path, 'w') as yaml_file:
-    yaml.dump(config_map, yaml_file)
+    config_map['token'] = args['token']
+    config_map['data']['remote'] = args['remote']
+    config_map['data']['db_url'] = args['database']
+    config_map['webhook']['enabled'] = args['webhook']
+    config_map['webhook']['url'] = args['urlwebhook']
+
+    config_map['meme']['group_id'] = args['group_id']
+    config_map['meme']['channel_id'] = args['channel_id']
+    config_map['meme']['channel_group_id'] = args['channel_group_id']
+
+    config_map['test']['api_id'] = args['test_api_hash']
+    config_map['test']['api_hash'] = args['test_api_id']
+    config_map['test']['session'] = args['test_session']
+    config_map['test']['tag'] = args['test_tag']
+    config_map['test']['token'] = args['test_token']
+
+
+    with open(args['path'], "w") as yaml_file:
+        yaml.dump(config_map, yaml_file)
+
+
+if __name__ == "__main__":
+    main()
