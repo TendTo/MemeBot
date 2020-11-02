@@ -13,7 +13,8 @@ WORKDIR $BOT_DIR
 
 COPY requirements.txt .
 #Install requirements
-RUN pip3 install -r requirements.txt
+RUN python -m pip install --upgrade pip &&\
+  pip3 install -r requirements.txt
 
 COPY . .
 #Setup settings and databases
