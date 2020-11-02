@@ -90,7 +90,7 @@ async def test_post_conversation(client: TelegramClient):
         await conv.send_message("/post")  # send a command
         resp: Message = await conv.get_response()
 
-        assert get_telegram_md(resp.text) == "Rispondi a questo messaggio con il post che vuoi pubblicare"
+        assert get_telegram_md(resp.text) == "Invia il post che vuoi pubblicare"
 
         await resp.reply("Testing")  # click inline keyboard
         resp: Message = await conv.get_response()
