@@ -1,5 +1,5 @@
 """Commands for the meme bot"""
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, ForceReply
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 from telegram.ext import CallbackContext
 from modules.data.data_reader import read_md, config_map
 from modules.data.meme_data import MemeData
@@ -112,9 +112,7 @@ def post_cmd(update: Update, context: CallbackContext) -> int:
         info['bot'].send_message(chat_id=info['chat_id'], text="Hai già un post in approvazione 🧐")
         return STATE['end']
 
-    info['bot'].send_message(chat_id=info['chat_id'],
-                             text="Rispondi a questo messaggio con il post che vuoi pubblicare",
-                             reply_markup=ForceReply())
+    info['bot'].send_message(chat_id=info['chat_id'], text="Invia il post che vuoi pubblicare")
     return STATE['posting']
 
 
@@ -224,9 +222,10 @@ def post_msg(update: Update, context: CallbackContext) -> int:
     if not check_message_type(update.message):  # the type is NOT supported
         info['bot'].send_message(
             chat_id=info['chat_id'],
-            text="Questo tipo di messaggio non è supportato\nPuoi inviare solo testo, immagini, audio o video",
+            text="Questo tipo di messaggio non è supportato\nÈ consentito solo testo, stikers, immagini, audio o video\n\
+                Invia il post che vuoi pubblicare\nPuoi annullare il processo con /cancel",
         )
-        return STATE['end']
+        return STATE['posting']
 
     info['bot'].send_message(chat_id=info['chat_id'],
                              text="Sei sicuro di voler publicare questo post?",
@@ -239,7 +238,7 @@ def post_msg(update: Update, context: CallbackContext) -> int:
 
 
 def forwarded_post_msg(update: Update, context: CallbackContext):
-    """Handles the post forwarded in the channel group
+    """Handles the post forwarded in the channel group.
     Sends a reply in the channel group and stores it in the database, so that the post can be voted
 
     Args:

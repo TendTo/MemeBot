@@ -47,7 +47,7 @@ def add_handlers(dp: Dispatcher):
     dp.add_handler(
         ConversationHandler(entry_points=[CommandHandler('post', post_cmd)],
                             states={
-                                STATE['posting']: [MessageHandler(Filters.reply & ~Filters.command, post_msg)],
+                                STATE['posting']: [MessageHandler(~Filters.command, post_msg)],
                                 STATE['confirm']: [CallbackQueryHandler(meme_callback, pattern=r"meme_confirm_\.*")]
                             },
                             fallbacks=[
