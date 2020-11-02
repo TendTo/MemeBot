@@ -428,8 +428,8 @@ Should not be used to select something</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="modules.data.meme_data.MemeData.get_admin_vote">
-<em class="property">static </em><code class="sig-name descname">get_admin_vote</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">admin_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">g_message_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">group_id</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>bool<span class="p">]</span><a class="headerlink" href="#modules.data.meme_data.MemeData.get_admin_vote" title="Permalink to this definition">¶</a></dt>
+<dt id="modules.data.meme_data.MemeData.get_admin_list_votes">
+<em class="property">static </em><code class="sig-name descname">get_admin_list_votes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">g_message_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">group_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">approve</span><span class="p">:</span> <span class="n">bool</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>str<span class="p">]</span><a class="headerlink" href="#modules.data.meme_data.MemeData.get_admin_list_votes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the vote of a specific admin on a pending post</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -506,27 +506,6 @@ Should not be used to select something</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Optional[int]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="modules.data.meme_data.MemeData.get_user_vote">
-<em class="property">static </em><code class="sig-name descname">get_user_vote</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">user_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">c_message_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">channel_id</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>bool<span class="p">]</span><a class="headerlink" href="#modules.data.meme_data.MemeData.get_user_vote" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the vote of a specific user on a published post</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>user_id</strong> (<em>int</em>) – id of the user that voted</p></li>
-<li><p><strong>c_message_id</strong> (<em>int</em>) – id of the post in question in the channel</p></li>
-<li><p><strong>channel_id</strong> (<em>int</em>) – id of the channel</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>a bool representing the vote or None if a vote was not yet made</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -662,7 +641,7 @@ Should not be used to select something</p>
 
 <dl class="py method">
 <dt id="modules.data.meme_data.MemeData.set_user_vote">
-<em class="property">static </em><code class="sig-name descname">set_user_vote</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">user_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">c_message_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">channel_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">vote</span><span class="p">:</span> <span class="n">bool</span></em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#modules.data.meme_data.MemeData.set_user_vote" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">set_user_vote</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">user_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">c_message_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">channel_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">vote</span><span class="p">:</span> <span class="n">bool</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>int<span class="p">, </span>bool<span class="p">]</span><a class="headerlink" href="#modules.data.meme_data.MemeData.set_user_vote" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the vote of the user on a specific post, or update the existing vote, if needed</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -674,10 +653,10 @@ Should not be used to select something</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>number of similar votes (all the upvotes or the downvotes), or -1 if the vote wasn’t updated</p>
+<dd class="field-even"><p>number of similar votes (all the upvotes or the downvotes), or -1 if the vote wasn’t updated,                 whether or not the vote was added or removed</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>int</p>
+<dd class="field-odd"><p>Tuple[int, bool]</p>
 </dd>
 </dl>
 </dd></dl>

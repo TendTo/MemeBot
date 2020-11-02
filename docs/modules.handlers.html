@@ -175,7 +175,7 @@
 <dt id="modules.handlers.callback_handlers.approve_no_callback">
 <code class="sig-prename descclassname">modules.handlers.callback_handlers.</code><code class="sig-name descname">approve_no_callback</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">update</span><span class="p">:</span> <span class="n">telegram.update.Update</span></em>, <em class="sig-param"><span class="n">context</span><span class="p">:</span> <span class="n">telegram.ext.callbackcontext.CallbackContext</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>str<span class="p">, </span>telegram.inline.inlinekeyboardmarkup.InlineKeyboardMarkup<span class="p">, </span>int<span class="p">]</span><a class="headerlink" href="#modules.handlers.callback_handlers.approve_no_callback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handles the approve_yes callback.
-Approve the post, deleting it from the pending_post table, publishing it in the channel     and putting it in the published post table</p>
+Approves the post, deleting it from the pending_post table, publishing it in the channel     and putting it in the published post table</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -196,7 +196,7 @@ Approve the post, deleting it from the pending_post table, publishing it in the 
 <dt id="modules.handlers.callback_handlers.approve_yes_callback">
 <code class="sig-prename descclassname">modules.handlers.callback_handlers.</code><code class="sig-name descname">approve_yes_callback</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">update</span><span class="p">:</span> <span class="n">telegram.update.Update</span></em>, <em class="sig-param"><span class="n">context</span><span class="p">:</span> <span class="n">telegram.ext.callbackcontext.CallbackContext</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>str<span class="p">, </span>telegram.inline.inlinekeyboardmarkup.InlineKeyboardMarkup<span class="p">, </span>int<span class="p">]</span><a class="headerlink" href="#modules.handlers.callback_handlers.approve_yes_callback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handles the approve_yes callback.
-Approve the post, deleting it from the pending_post table, publishing it in the channel     and putting it in the published post table</p>
+Approves the post, deleting it from the pending_post table, publishing it in the channel     and putting it in the published post table</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -216,7 +216,7 @@ Approve the post, deleting it from the pending_post table, publishing it in the 
 <dl class="py function">
 <dt id="modules.handlers.callback_handlers.confirm_no_callback">
 <code class="sig-prename descclassname">modules.handlers.callback_handlers.</code><code class="sig-name descname">confirm_no_callback</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">update</span><span class="p">:</span> <span class="n">telegram.update.Update</span></em>, <em class="sig-param"><span class="n">context</span><span class="p">:</span> <span class="n">telegram.ext.callbackcontext.CallbackContext</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>str<span class="p">, </span>telegram.inline.inlinekeyboardmarkup.InlineKeyboardMarkup<span class="p">, </span>int<span class="p">]</span><a class="headerlink" href="#modules.handlers.callback_handlers.confirm_no_callback" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handles the confirm_yes callback.
+<dd><p>Handles the confirm_no callback.
 Saves the post as pending and sends it to the admins for them to check</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -278,7 +278,7 @@ Saves the post as pending and sends it to the admins for them to check</p>
 <dl class="py function">
 <dt id="modules.handlers.callback_handlers.settings_anonimo_callback">
 <code class="sig-prename descclassname">modules.handlers.callback_handlers.</code><code class="sig-name descname">settings_anonimo_callback</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">update</span><span class="p">:</span> <span class="n">telegram.update.Update</span></em>, <em class="sig-param"><span class="n">context</span><span class="p">:</span> <span class="n">telegram.ext.callbackcontext.CallbackContext</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>str<span class="p">, </span>telegram.inline.inlinekeyboardmarkup.InlineKeyboardMarkup<span class="p">, </span>int<span class="p">]</span><a class="headerlink" href="#modules.handlers.callback_handlers.settings_anonimo_callback" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handles the settings_sei_ghei callback
+<dd><p>Handles the settings_sei_ghei callback.
 Removes the user_id from the table of credited users, if present</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -299,7 +299,7 @@ Removes the user_id from the table of credited users, if present</p>
 <dl class="py function">
 <dt id="modules.handlers.callback_handlers.settings_credit_callback">
 <code class="sig-prename descclassname">modules.handlers.callback_handlers.</code><code class="sig-name descname">settings_credit_callback</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">update</span><span class="p">:</span> <span class="n">telegram.update.Update</span></em>, <em class="sig-param"><span class="n">context</span><span class="p">:</span> <span class="n">telegram.ext.callbackcontext.CallbackContext</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>str<span class="p">, </span>telegram.inline.inlinekeyboardmarkup.InlineKeyboardMarkup<span class="p">, </span>int<span class="p">]</span><a class="headerlink" href="#modules.handlers.callback_handlers.settings_credit_callback" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handles the settings_foto_cane callback
+<dd><p>Handles the settings_foto_cane callback.
 Adds the user_id to the table of credited users, if it wasn’t already there</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -402,7 +402,7 @@ Exit from the post pipeline</p>
 <dl class="py function">
 <dt id="modules.handlers.command_handlers.forwarded_post_msg">
 <code class="sig-prename descclassname">modules.handlers.command_handlers.</code><code class="sig-name descname">forwarded_post_msg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">update</span><span class="p">:</span> <span class="n">telegram.update.Update</span></em>, <em class="sig-param"><span class="n">context</span><span class="p">:</span> <span class="n">telegram.ext.callbackcontext.CallbackContext</span></em><span class="sig-paren">)</span><a class="headerlink" href="#modules.handlers.command_handlers.forwarded_post_msg" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handles the post forwarded in the channel group
+<dd><p>Handles the post forwarded in the channel group.
 Sends a reply in the channel group and stores it in the database, so that the post can be voted</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
