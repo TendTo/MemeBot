@@ -40,7 +40,6 @@ jobs:
           pytest
       - name: Revert enviroment
         run: |
-          python3 settings.py -r
           mv data/db/sqlite.db data/db/sqlite.db.dist
           mv config/settings.yaml config/settings.yaml.dist
       - name: Deploy to Heroku
