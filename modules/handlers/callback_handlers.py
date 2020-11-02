@@ -6,7 +6,7 @@ from modules.data.data_reader import config_map
 from modules.data.meme_data import MemeData
 from modules.utils.info_util import get_callback_info
 from modules.utils.keyboard_util import update_approve_kb, update_vote_kb
-from modules.utils.post_util import send_post_to
+from modules.utils.post_util import send_post_to, show_admins_votes
 
 STATE = {'posting': 1, 'confirm': 2, 'end': -1}
 
@@ -68,7 +68,7 @@ def confirm_yes_callback(update: Update, context: CallbackContext) -> Tuple[str,
 
 
 def confirm_no_callback(update: Update, context: CallbackContext) -> Tuple[str, InlineKeyboardMarkup, int]:
-    """Handles the confirm_yes callback.
+    """Handles the confirm_no callback.
     Saves the post as pending and sends it to the admins for them to check
 
     Args:
@@ -83,7 +83,7 @@ def confirm_no_callback(update: Update, context: CallbackContext) -> Tuple[str, 
 
 
 def settings_anonimo_callback(update: Update, context: CallbackContext) -> Tuple[str, InlineKeyboardMarkup, int]:
-    """Handles the settings_sei_ghei callback
+    """Handles the settings_sei_ghei callback.
     Removes the user_id from the table of credited users, if present
 
     Args:
@@ -105,7 +105,7 @@ def settings_anonimo_callback(update: Update, context: CallbackContext) -> Tuple
 
 
 def settings_credit_callback(update: Update, context: CallbackContext) -> Tuple[str, InlineKeyboardMarkup, int]:
-    """Handles the settings_foto_cane callback
+    """Handles the settings_foto_cane callback.
     Adds the user_id to the table of credited users, if it wasn't already there
 
     Args:
@@ -134,7 +134,7 @@ def settings_credit_callback(update: Update, context: CallbackContext) -> Tuple[
 
 def approve_yes_callback(update: Update, context: CallbackContext) -> Tuple[str, InlineKeyboardMarkup, int]:
     """Handles the approve_yes callback.
-    Approve the post, deleting it from the pending_post table, publishing it in the channel \
+    Approves the post, deleting it from the pending_post table, publishing it in the channel \
     and putting it in the published post table
 
     Args:
@@ -147,7 +147,7 @@ def approve_yes_callback(update: Update, context: CallbackContext) -> Tuple[str,
     info = get_callback_info(update, context)
     n_approve = MemeData.set_admin_vote(info['sender_id'], info['message_id'], info['chat_id'], True)
 
-    # the post passed the approval phase and is to be published
+    # The post passed the approval phase and is to be published
     if n_approve >= config_map['meme']['n_votes']:
         message = update.callback_query.message
         user_id = MemeData.get_user_id(g_message_id=info['message_id'], group_id=info['chat_id'])
@@ -158,7 +158,8 @@ def approve_yes_callback(update: Update, context: CallbackContext) -> Tuple[str,
 
         info['bot'].send_message(chat_id=user_id, text="Il tuo ultimo post è stato approvato")  # notify the user
 
-        info['bot'].delete_message(chat_id=info['chat_id'], message_id=info['message_id'])  # clean the post
+        # Shows the list of admins who approved the pending post and removes it form the db
+        show_admins_votes(chat_id=info['chat_id'], message_id=info['message_id'], bot=info['bot'], approve=True)
         MemeData.remove_pending_meme(info['message_id'], info['chat_id'])
         return None, None, None
 
@@ -171,7 +172,7 @@ def approve_yes_callback(update: Update, context: CallbackContext) -> Tuple[str,
 
 def approve_no_callback(update: Update, context: CallbackContext) -> Tuple[str, InlineKeyboardMarkup, int]:
     """Handles the approve_yes callback.
-    Approve the post, deleting it from the pending_post table, publishing it in the channel \
+    Approves the post, deleting it from the pending_post table, publishing it in the channel \
     and putting it in the published post table
 
     Args:
@@ -186,10 +187,13 @@ def approve_no_callback(update: Update, context: CallbackContext) -> Tuple[str, 
 
     # The post has been refused
     if n_reject >= config_map['meme']['n_votes']:
-        info['bot'].delete_message(chat_id=info['chat_id'], message_id=info['message_id'])
         user_id = MemeData.get_user_id(g_message_id=info['message_id'], group_id=info['chat_id'])
-        info['bot'].send_message(chat_id=user_id,
-                                 text="Il tuo ultimo post è stato rifiutato\nPuoi controllare le regole con /rules")
+        info['bot'].send_message(
+            chat_id=user_id,
+            text="Il tuo ultimo post è stato rifiutato\nPuoi controllare le regole con /rules")  # notify the user
+
+        # Shows the list of admins who refused the pending post and removes it form the db
+        show_admins_votes(chat_id=info['chat_id'], message_id=info['message_id'], bot=info['bot'], approve=False)
         MemeData.remove_pending_meme(info['message_id'], info['chat_id'])
         return None, None, None
 
@@ -213,9 +217,9 @@ def vote_yes_callback(update: Update, context: CallbackContext) -> Tuple[str, In
     """
     info = get_callback_info(update, context)
     n_upvotes, was_added = MemeData.set_user_vote(user_id=info['sender_id'],
-                                       c_message_id=info['message_id'],
-                                       channel_id=info['chat_id'],
-                                       vote=True)
+                                                  c_message_id=info['message_id'],
+                                                  channel_id=info['chat_id'],
+                                                  vote=True)
 
     if n_upvotes != -1:  # the vote changed
         if was_added:
@@ -241,9 +245,9 @@ def vote_no_callback(update: Update, context: CallbackContext) -> Tuple[str, Inl
     """
     info = get_callback_info(update, context)
     n_downvotes, was_added = MemeData.set_user_vote(user_id=info['sender_id'],
-                                         c_message_id=info['message_id'],
-                                         channel_id=info['chat_id'],
-                                         vote=False)
+                                                    c_message_id=info['message_id'],
+                                                    channel_id=info['chat_id'],
+                                                    vote=False)
 
     if n_downvotes != -1:  # the vote changed
         if was_added:

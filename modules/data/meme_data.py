@@ -43,7 +43,7 @@ class MemeData():
         Returns:
             int: number of similar votes (all the approve or the reject), or -1 if the vote wasn't updated
         """
-        vote = MemeData.get_admin_vote(admin_id, g_message_id, group_id)
+        vote = MemeData.__get_admin_vote(admin_id, g_message_id, group_id)
         if vote is None:  # there isn't a vote yet
             DbManager.insert_into(table_name="admin_votes",
                                   columns=("admin_id", "g_message_id", "group_id", "is_upvote"),
@@ -60,7 +60,7 @@ class MemeData():
         return number_of_votes
 
     @staticmethod
-    def get_admin_vote(admin_id: int, g_message_id: int, group_id: int) -> Optional[bool]:
+    def __get_admin_vote(admin_id: int, g_message_id: int, group_id: int) -> Optional[bool]:
         """Gets the vote of a specific admin on a pending post
 
         Args:
@@ -80,6 +80,28 @@ class MemeData():
             return None
 
         return vote[0]['is_upvote']
+
+    @staticmethod
+    def get_admin_list_votes(g_message_id: int, group_id: int, approve: bool) -> Tuple[str]:
+        """Gets the vote of a specific admin on a pending post
+
+        Args:
+            admin_id (int): id of the admin that voted
+            g_message_id (int): id of the post in question in the group
+            group_id (int): id of the admin group
+
+        Returns:
+            Optional[bool]: a bool representing the vote or None if a vote was not yet made
+        """
+        votes = DbManager.select_from(select="admin_id",
+                                     table_name="admin_votes",
+                                     where="g_message_id = %s and group_id = %s and is_upvote = %s",
+                                     where_args=(g_message_id, group_id, approve))
+
+        if len(votes) == 0:  # the vote is not present
+            return None
+
+        return tuple([vote['admin_id'] for vote in votes])
 
     @staticmethod
     def get_pending_votes(g_message_id: int, group_id: int, vote: bool) -> int:
@@ -139,7 +161,7 @@ class MemeData():
             Tuple[int, bool]: number of similar votes (all the upvotes or the downvotes), or -1 if the vote wasn't updated, \
                 whether or not the vote was added or removed
         """
-        current_vote = MemeData.get_user_vote(user_id, c_message_id, channel_id)
+        current_vote = MemeData.__get_user_vote(user_id, c_message_id, channel_id)
         vote_added = True
         if current_vote is None:  # there isn't a vote yet
             DbManager.insert_into(table_name="votes",
@@ -160,7 +182,7 @@ class MemeData():
         return number_of_votes, vote_added
 
     @staticmethod
-    def get_user_vote(user_id: int, c_message_id: int, channel_id: int) -> Optional[bool]:
+    def __get_user_vote(user_id: int, c_message_id: int, channel_id: int) -> Optional[bool]:
         """Gets the vote of a specific user on a published post
 
         Args:
