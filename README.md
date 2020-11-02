@@ -82,10 +82,8 @@ webhook:
 | In the command line <br>(after each --build-arg) | Type | Function | Optional |
 | --- | --- | --- | --- |
 | **TOKEN=<token_args>** | string | the token for your telegram bot | REQUIRED |
-| **WEBHOOK_ENABLED=<webhook_enabled>** | bool | whether or not the bot should use webhook<br>(false recommended for local) | OPTIONAL - defaults to false |
-| **WEB_URL=<web_url>** | string | the url used by the webhook | REQUIRED IF<br>webhook_enabled = true |
-| **DATA_REMOTE=<data_remote>** | bool | whether the data will be saved remotely (postgres) or locally (mysql)<br>(false recommended for local) | OPTIONAL - defaults to false |
-| **DATABASE_URL=<db_url>** | string | url of your postgres database | REQUIRED IF<br>data_remote = true |
+| **WEB_URL=<web_url>** | string | the url used by the webhook | REQUIRED |
+| **DATABASE_URL=<db_url>** | string | url of your postgres database | REQUIRED |
 | **GROUP_ID=<group_id>** | int | id of the admin group the memebot will use | REQUIRED |
 | **CHANNEL_ID=<channel_id>** | int | id of the channel to which the bot will send the approved memes  | REQUIRED |
 | **CHANNEL_GROUP_ID=<channel_id>** | int | id of the group associated with the channel | REQUIRED IF<br>comments = true |
@@ -139,6 +137,8 @@ test:
 - Access the container and **Run** `pytest` or edit the Dockerfile to do so
 
 ## :books: Documentation
+Check the gh-pages branch
+
 [Link to the documentation](https://tendto.github.io/MemeBot/)
 
 ## :twisted_rightwards_arrows: About Pull Requests
